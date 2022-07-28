@@ -14,5 +14,7 @@
             "email": "osasonaayodeji1@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+      "ext-json": "*"
+    }
 }
