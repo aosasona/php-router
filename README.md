@@ -1,5 +1,5 @@
 # PHP Router
-PHP-Router is a modern, lightning-fast, and adaptable composer package that provides express-style routing without necessarily requiring the user to manually change or create a .htaccess file.
+PHP-Router is a modern, lightning-fast, and adaptable composer package that provides express-style routing in PHP.
 
 ```
 Depending on how you're running your application, 
