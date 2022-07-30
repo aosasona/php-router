@@ -3,8 +3,13 @@
     "description": "A simple express-style router for PHP",
     "version": "1.0.0",
     "type": "library",
+    "keywords": [
+        "router",
+        "php",
+        "express",
+        "api"
+    ],
     "license": "MIT",
-
     "autoload": {
         "psr-4": {
             "Trulyao\\PhpRouter\\": "src/"
@@ -18,6 +23,7 @@
         }
     ],
     "require": {
-      "ext-json": "*"
+      "ext-json": "*",
+        "php": ">=5.6"
     }
 }
