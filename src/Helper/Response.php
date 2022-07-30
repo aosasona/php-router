@@ -4,7 +4,7 @@ namespace Trulyao\PhpRouter\Helper;
 
 class Response {
 
-    public string $source_path;
+    public $source_path;
 
     public function __construct($source_path = "") {
         $this->source_path = $source_path;

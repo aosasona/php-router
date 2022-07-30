@@ -4,9 +4,9 @@ namespace Trulyao\PhpRouter\Helper;
 
 class Request {
 
-    public array $request_data;
-    public array $request_params;
-    public string $request_path;
+    public $request_data;
+    public $request_params;
+    public $request_path;
 
     public function __construct($request_data, $params = [], $path = "") {
         $this->request_data = $request_data;
