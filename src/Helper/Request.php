@@ -16,7 +16,7 @@ class Request {
         [$get, $post] = $this->request_data;
 
         $get = array_map(function($value) {
-            return htmlspecialchars($value);
+            return htmlspecialchars_decode($value);
         }, $get);
 
         return array_key_exists($key, $get) ? $get[$key] :($key !== null ? null : (count($get) > 0 ? $get : null));

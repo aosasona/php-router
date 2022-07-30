@@ -156,7 +156,7 @@ class Router {
             $values = [];
             foreach ($params as $param) {
                 $current_index = array_search(":{$param}", $route["path_array"]);
-                $values[$param] = $this->request_params[$current_index];
+                $values[$param] = htmlspecialchars($this->request_params[$current_index]);
             }
             return $values;
         } catch (\Exception $e) {

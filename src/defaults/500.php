@@ -3,8 +3,8 @@
     Server Error!
 </title>
 <body>
-<h1 style="text-align: center; font-size: 2rem; padding: 2rem;">500 Server Error!</h1>
-<p style="text-align: center; font-size: 0.9rem; padding: 1.5rem; border-top: 1px solid black;">Powered by PHPRouter</p>
+<h1 style="text-align: center; font-size: 3rem; padding: 2rem;">500 Server Error!</h1>
+<?php include __DIR__."/footer.php"; ?>
 </body>
 </html>
 
