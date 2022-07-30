@@ -1,5 +1,16 @@
 # PHP Router
-It can be a hassle to write or change a.htaccess file, but doing so is one of the most common ways for individuals to get rid of the unpleasant '.php' extension that is added to URLs. Well, that won't be necessary anymore. PHP-Router is a modern, lightning-fast, and adaptable composer package that provides express-style routing without requiring the user to manually change or create a .htaccess file.
+PHP-Router is a modern, lightning-fast, and adaptable composer package that provides express-style routing without necessarily requiring the user to manually change or create a .htaccess file.
+
+```
+Depending on how you're running your application, 
+you MAY need to add the following to your .htaccess file: 
+
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ /index.php [L,QSA]
+```
+
 
 ## Installation
 
@@ -101,4 +112,4 @@ You can easily add a custom 404 and 500 page by creating a file in the `/views` 
 - Create a pull request with your changes highlighted
 - For more information, contact me [here](https://twitter.com/trulyao)
 
->This documentation will be updated as soon as new features and methods are added to the package.
+> This documentation will be updated as soon as new features and methods are added to the package.

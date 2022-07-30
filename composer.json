@@ -10,7 +10,6 @@
             "Trulyao\\PhpRouter\\": "src/"
         }
     },
-    "minimum-stability": "stable",
     "homepage": "https://github.com/aosasona/php-router",
     "authors": [
         {
