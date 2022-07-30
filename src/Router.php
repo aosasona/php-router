@@ -1,7 +1,7 @@
 <?php
 namespace Trulyao\PhpRouter;
 
-use \Trulyao\PhpRouter\Helper as response_helper;
+use \Trulyao\PhpRouter\Helper as resource_helper;
 
 class Router {
     public string $source_path;
@@ -70,17 +70,39 @@ class Router {
     private function compare_current_path($path): bool
     {
         $path = $path !== "/" ? $path : "";
-        $path = "/".$this->base_path . $path;
-        $path = rtrim($path, "/");
-        return $this->request_path === $path;
+        $path = $this->base_path . $path;
+
+        if(ltrim(rtrim($path, "/"), "/") === ltrim(rtrim($this->request_path, "/"), "/")) {
+            return true;
+        }
+
+        $path_parts = explode("/", $path);
+        $request_parts = $this->request_params;
+
+
+        foreach($path_parts as $key => $path_value) {
+            if(count($path_parts) === count($request_parts)){
+                if(strpos($path_value, ":") === 0) {
+                    unset($path_parts[$key]);
+                    unset($request_parts[$key]);
+                }
+                if(count(array_diff($path_parts, $request_parts)) === 0) {
+                    return true;
+                }
+
+            }
+        }
+
+
+        return false;
     }
 
-    protected function add_route($path, $cb, $method = "GET"): void
+    private function add_route($path, $cb, $method = "GET"): void
     {
         $params = [];
         $path_array = explode('/', $path);
         foreach($path_array as $key => $value) {
-            if(strpos($value, ":") !== false) {
+            if(strpos($value, ":") !== false && strpos($value, ":") === 0) {
                 $params[] = str_replace(":", "", $value);
             }
         }
@@ -118,6 +140,7 @@ class Router {
 
     // Get a route based on the request method and path
     private function get_route($path, $method) {
+
         foreach($this->routes as $route) {
             if($route["method"] === $method && $this->compare_current_path($route["path"])) {
                 return $route;
@@ -126,31 +149,41 @@ class Router {
         return null;
     }
 
-    private function serve_route($path, $file) {
+    private function get_params_values($route): array
+    {
         try {
-            if ($this->compare_current_path($path)) {
-                if ($this->check_file_exists($file)) {
-                    include $this->get_file_path($file);
-                } else {
-                    $this->send_error_page(404);
-                }
+            $params = $route["params"];
+            $values = [];
+            foreach ($params as $param) {
+                $current_index = array_search(":{$param}", $route["path_array"]);
+                $values[$param] = $this->request_params[$current_index];
             }
-        } catch(\Exception $e) {
-            $this->send_error_page(500);
+            return $values;
+        } catch (\Exception $e) {
+            return [];
         }
     }
 
+
     private function auto_serve($method){
-        $response = new response_helper\Response($this->source_path);
-        $request = new response_helper\Request([$_GET, $_POST]);
-//        print_r($this->routes[count($this->routes) - 1]);
+        try{
         $route = $this->get_route($this->request_path, strtoupper($method));
+
+        $params = count($route["params"] ?? []) > 0 ? $this->get_params_values($route) : [];
+        $response = new resource_helper\Response($this->source_path);
+        $request = new resource_helper\Request([$_GET, $_POST], $params);
+        
+
         if($route !== null) {
-            !$route["dynamic"] ? $route['cb']($request, $response) : $route['cb']($this->request_params);
+            $route['cb']($request, $response);
         } else {
             $this->send_error_page(404);
         }
         exit;
+        } catch (\Exception $e) {
+            $this->send_error_page(500);
+            exit;
+        }
     }
 
 

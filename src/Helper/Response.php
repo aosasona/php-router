@@ -30,10 +30,11 @@ class Response {
         exit;
     }
 
-    public function send($html): Response
+    public function send($content): Response
     {
-        header('Content-Type: text/html');
-        echo $html;
+        $content_type =  is_array($content) ? "application/json" : "text/html";
+        header('Content-Type: '.$content_type);
+        echo is_array($content) ? json_encode($content) : $content;
         return $this;
     }
 
