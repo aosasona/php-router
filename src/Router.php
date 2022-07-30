@@ -1,6 +1,8 @@
 <?php
 namespace Trulyao\PhpRouter;
 
+use \Trulyao\PhpRouter\Helper as response_helper;
+
 class Router {
     public string $source_path;
     public string $base_path;
@@ -15,6 +17,11 @@ class Router {
         $this->base_path = $base_path;
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->request_path = rtrim($_SERVER['REQUEST_URI'], "/");
+
+        if ($pos = strpos($this->request_path, "?")) {
+            $this->request_path = substr($this->request_path, 0, $pos);
+        }
+
         $this->request_params = explode('/', rtrim($this->request_path, "/"));
         $this->request_params = array_filter($this->request_params, function ($value) {
             return $value !== '';
@@ -68,41 +75,48 @@ class Router {
         return $this->request_path === $path;
     }
 
-    // Create a GET route
-    public function get($path, $file) {
+    protected function add_route($path, $cb, $method = "GET"): void
+    {
+        $params = [];
+        $path_array = explode('/', $path);
+        foreach($path_array as $key => $value) {
+            if(strpos($value, ":") !== false) {
+                $params[] = str_replace(":", "", $value);
+            }
+        }
+        $dynamic = count($params) > 0;
 
         $this->routes[] = [
-            "method" => "GET",
+            "method" => $method,
             "path" => $path,
-            "file" => $file
+            "cb" => $cb,
+            "params" => $params,
+            "path_array" => $path_array,
+            "dynamic" => $dynamic
         ];
+    }
+
+    // Create a GET route
+    public function get($path, $cb): void {
+        $this->add_route($path, $cb, "GET");
     }
 
     // Create a POST route
-    public function post($path, $file) {
-        $this->routes[] = [
-            "method" => "POST",
-            "path" => $path,
-            "file" => $file
-        ];
+    public function post($path, $cb) {
+        $this->add_route($path, $cb, "POST");
     }
 
-    public function delete($path, $file) {
-        $this->routes[] = [
-            "method" => "DELETE",
-            "path" => $path,
-            "file" => $file
-        ];
+    // Create a DELETE route
+    public function delete($path, $cb) {
+        $this->add_route($path, $cb, "DELETE");
     }
 
-    public function put($path, $file) {
-        $this->routes[] = [
-            "method" => "PUT",
-            "path" => $path,
-            "file" => $file
-        ];
+    // Create a PUT route
+    public function put($path, $cb) {
+        $this->add_route($path, $cb, "PUT");
     }
 
+    // Get a route based on the request method and path
     private function get_route($path, $method) {
         foreach($this->routes as $route) {
             if($route["method"] === $method && $this->compare_current_path($route["path"])) {
@@ -112,73 +126,48 @@ class Router {
         return null;
     }
 
-    // TODO: clean these up a bit more
-    private function serve_get($path, $file) {
-        if($this->compare_current_path($path)) {
-            if($this->check_file_exists($file)) {
-                include $this->get_file_path($file);
-            } else {
-                $this->send_error_page(404);
+    private function serve_route($path, $file) {
+        try {
+            if ($this->compare_current_path($path)) {
+                if ($this->check_file_exists($file)) {
+                    include $this->get_file_path($file);
+                } else {
+                    $this->send_error_page(404);
+                }
             }
+        } catch(\Exception $e) {
+            $this->send_error_page(500);
         }
     }
 
-    private function serve_post($path, $file)
-    {
-        if($this->compare_current_path($path)) {
-            if($this->check_file_exists($file)) {
-                include $this->get_file_path($file);
-            } else {
-                $this->send_error_page(404);
-            }
+    private function auto_serve($method){
+        $response = new response_helper\Response($this->source_path);
+        $request = new response_helper\Request([$_GET, $_POST]);
+//        print_r($this->routes[count($this->routes) - 1]);
+        $route = $this->get_route($this->request_path, strtoupper($method));
+        if($route !== null) {
+            !$route["dynamic"] ? $route['cb']($request, $response) : $route['cb']($this->request_params);
+        } else {
+            $this->send_error_page(404);
         }
-    }
-
-    private function serve_delete($path, $file)
-    {
-        if($this->compare_current_path($path)) {
-            if($this->check_file_exists($file)) {
-                include $this->get_file_path($file);
-            } else {
-                $this->send_error_page(404);
-            }
-        }
-    }
-
-    private function serve_put($path, $file)
-    {
-        if($this->compare_current_path($path)) {
-            if($this->check_file_exists($file)) {
-                include $this->get_file_path($file);
-            } else {
-                $this->send_error_page(404);
-            }
-        }
+        exit;
     }
 
 
     // Serve routes and their controllers
-    public function run() {
+    public function serve() {
             switch($this->method) {
                 case "GET":
-                    $route = $this->get_route($this->request_path, "GET");
-                    if($route !== null) {
-                        $this->serve_get($route['path'], $route['file']);
-                    } else {
-                        $this->send_error_page(404);
-                    }
+                    $this->auto_serve("GET");
                     break;
                 case "POST":
-                    $route = $this->get_route($this->request_path, "POST");
-                    $this->serve_post($route['path'], $route['file']);
+                    $this->auto_serve("POST");
                     break;
                 case "DELETE":
-                    $route = $this->get_route($this->request_path, "DELETE");
-                    $this->serve_delete($route['path'], $route['file']);
+                    $this->auto_serve("DELETE");
                     break;
                 case "PUT":
-                    $route = $this->get_route($this->request_path, "PUT");
-                    $this->serve_put($route['path'], $route['file']);
+                    $this->auto_serve("PUT");
                     break;
             }
     }
