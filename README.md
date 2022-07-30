@@ -57,6 +57,7 @@ $router->serve();
 
 `/examples` - The directory where your project (mainly the index.php file that contains your routes) is located, in this case; the `examples` folder.
 
+You will also find more examples in the `examples` folder.
 
 ## The `$req` object
 
