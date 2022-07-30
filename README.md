@@ -1,5 +1,5 @@
 # PHP Router
-It can be a hassle to write or change a.htaccess file, but doing so is one of the most common ways for individuals to get rid of the unpleasant '.php' extension that is added to URLs. Well, that won't be necessary anymore. PHP-Router is a modern, lightning-fast, and adaptable composer package that provides express-style routing without requiring the user to manually change or create an.htaccess file.
+It can be a hassle to write or change a.htaccess file, but doing so is one of the most common ways for individuals to get rid of the unpleasant '.php' extension that is added to URLs. Well, that won't be necessary anymore. PHP-Router is a modern, lightning-fast, and adaptable composer package that provides express-style routing without requiring the user to manually change or create a .htaccess file.
 
 ## Installation
 
