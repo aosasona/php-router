@@ -171,7 +171,7 @@ class Router {
 
         $params = count($route["params"] ?? []) > 0 ? $this->get_params_values($route) : [];
         $response = new resource_helper\Response($this->source_path);
-        $request = new resource_helper\Request([$_GET, $_POST], $params);
+        $request = new resource_helper\Request([$_GET, $_POST], $params, $this->request_path);
         
 
         if($route !== null) {

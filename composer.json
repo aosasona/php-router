@@ -1,6 +1,6 @@
 {
     "name": "trulyao/php-router",
-    "description": "A simple router for APIs in PHP",
+    "description": "A simple express-style router for PHP",
     "type": "library",
     "license": "MIT",
     "autoload": {
@@ -8,6 +8,7 @@
             "Trulyao\\PhpRouter\\": "src/"
         }
     },
+    "minimum-stability": "stable",
     "authors": [
         {
             "name": "Ayodeji O",

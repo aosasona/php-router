@@ -23,6 +23,7 @@ class Response {
         return file_exists($this->get_file_path($file_name));
     }
 
+    // Send error message to the client
     public function error($message, $status): void {
         header('Content-Type: application/json');
         http_response_code($status);

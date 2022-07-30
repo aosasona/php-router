@@ -6,10 +6,12 @@ class Request {
 
     public array $request_data;
     public array $request_params;
+    public string $request_path;
 
-    public function __construct($request_data, $params = []) {
+    public function __construct($request_data, $params = [], $path = "") {
         $this->request_data = $request_data;
         $this->request_params = $params;
+        $this->request_path = $path;
     }
 
     public function query($key = null) {
@@ -34,5 +36,9 @@ class Request {
 
     public function params($key = null) {
         return $this->request_params[$key] ?? ($key !== null ? null : $this->request_params);
+    }
+
+    public function path() {
+        return $this->request_path;
     }
 }
