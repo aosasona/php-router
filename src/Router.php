@@ -4,12 +4,12 @@ namespace Trulyao\PhpRouter;
 use \Trulyao\PhpRouter\Helper as resource_helper;
 
 class Router {
-    public string $source_path;
-    public string $base_path;
-    public string $method;
-    public string $request_path;
-    public array $request_params;
-    public array $routes;
+    public $source_path;
+    public $base_path;
+    public $method;
+    public $request_path;
+    public $request_params;
+    public $routes;
 
     public function __construct($source_path, $base_path = "")
     {
@@ -45,7 +45,7 @@ class Router {
     }
 
     # Send error message to the client
-    private function send_error_page($error_code = 404): void {
+    private function send_error_page($error_code = 404) {
         switch($error_code) {
             case 404:
                 header("HTTP/1.0 404 Not Found");
@@ -101,7 +101,7 @@ class Router {
     }
 
     # Add a route to the routes array
-    private function add_route($path, $cb, $method = "GET"): void
+    private function add_route($path, $cb, $method = "GET")
     {
         $params = [];
         $path_array = explode('/', $path);
@@ -123,7 +123,7 @@ class Router {
     }
 
     # Create a GET route
-    public function get($path, $cb): void {
+    public function get($path, $cb) {
         $this->add_route($path, $cb, "GET");
     }
 
