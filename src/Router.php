@@ -18,10 +18,12 @@ class Router {
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->request_path = rtrim($_SERVER['REQUEST_URI'], "/");
 
+        # Remove query string from request path
         if ($pos = strpos($this->request_path, "?")) {
             $this->request_path = substr($this->request_path, 0, $pos);
         }
 
+        # Extract params from request path - current path
         $this->request_params = explode('/', rtrim($this->request_path, "/"));
         $this->request_params = array_filter($this->request_params, function ($value) {
             return $value !== '';
@@ -30,19 +32,19 @@ class Router {
         $this->routes = [];
     }
 
-    // Get file path from source path and request path
+    # Get file path from source path and request path
     private function get_file_path($file_name): string
     {
         return $this->source_path . '/' . $file_name;
     }
 
-    // Check if the controller file exists
+    # Check if the controller file exists
     private function check_file_exists($file_name): bool
     {
         return file_exists($this->get_file_path($file_name));
     }
 
-    // Send error message to the client
+    # Send error message to the client
     private function send_error_page($error_code = 404): void {
         switch($error_code) {
             case 404:
@@ -67,6 +69,7 @@ class Router {
         }
     }
 
+    # Compare current path with the route path
     private function compare_current_path($path): bool
     {
         $path = $path !== "/" ? $path : "";
@@ -97,6 +100,7 @@ class Router {
         return false;
     }
 
+    # Add a route to the routes array
     private function add_route($path, $cb, $method = "GET"): void
     {
         $params = [];
@@ -118,27 +122,27 @@ class Router {
         ];
     }
 
-    // Create a GET route
+    # Create a GET route
     public function get($path, $cb): void {
         $this->add_route($path, $cb, "GET");
     }
 
-    // Create a POST route
+    # Create a POST route
     public function post($path, $cb) {
         $this->add_route($path, $cb, "POST");
     }
 
-    // Create a DELETE route
+    # Create a DELETE route
     public function delete($path, $cb) {
         $this->add_route($path, $cb, "DELETE");
     }
 
-    // Create a PUT route
+    # Create a PUT route
     public function put($path, $cb) {
         $this->add_route($path, $cb, "PUT");
     }
 
-    // Get a route based on the request method and path
+    # Get a route based on the request method and path
     private function get_route($path, $method) {
 
         foreach($this->routes as $route) {
@@ -149,6 +153,7 @@ class Router {
         return null;
     }
 
+    # Extract the params from the request path
     private function get_params_values($route): array
     {
         try {
@@ -165,6 +170,7 @@ class Router {
     }
 
 
+    # Serve routes and send error page if no match is found
     private function auto_serve($method){
         try{
         $route = $this->get_route($this->request_path, strtoupper($method));
@@ -187,7 +193,7 @@ class Router {
     }
 
 
-    // Serve routes and their controllers
+    # Serve routes and their controllers
     public function serve() {
             switch($this->method) {
                 case "GET":

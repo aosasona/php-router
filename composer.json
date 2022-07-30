@@ -1,14 +1,17 @@
 {
     "name": "trulyao/php-router",
     "description": "A simple express-style router for PHP",
+    "version": "1.0.0",
     "type": "library",
     "license": "MIT",
+
     "autoload": {
         "psr-4": {
             "Trulyao\\PhpRouter\\": "src/"
         }
     },
     "minimum-stability": "stable",
+    "homepage": "https://github.com/aosasona/php-router",
     "authors": [
         {
             "name": "Ayodeji O",

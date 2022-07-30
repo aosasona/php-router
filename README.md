@@ -1,5 +1,5 @@
 # PHP Router
-PhpRouter is an modern, fast, and flexible PHP router library with express-style routing without the need to edit or write an .htaccess file.
+PhpRouter is a modern, fast, and flexible PHP router library with express-style routing without the need to edit or write an .htaccess file.
 
 ## Installation
 
@@ -26,25 +26,25 @@ composer require trulyao/php-router
 ```php
 <?php
 
-// Your autoload file
+# Your autoload file
 require(__DIR__ . '/../vendor/autoload.php');
 
-// Create a new instance
+ Create a new instance
 $router = new \Trulyao\PhpRouter\Router(__DIR__."/views", "examples");
 
-// GET route
+# GET route
 $router->get("/", function($req, $res) {
     return $res->send("<h1>Hello World</h1>");
 });
 
-// POST route
+# POST route
 $router->post("/", function($req, $res) {
    return $res->send([
        "message" => "Hello World"
    ]);
 });
 
-// Start the router - very important!
+# Start the router - very important!
 $router->serve();
 
 ?>
