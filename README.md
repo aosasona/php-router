@@ -1,21 +1,25 @@
 # PHP Router
 PHP-Router is a modern, lightning-fast, and adaptable composer package that provides express-style routing in PHP.
 
-```
-Depending on how you're running your application, 
-you MAY need to add the following to your .htaccess file: 
-
-RewriteEngine on
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^.*$ /index.php [L,QSA]
-```
-
 
 ## Installation
 
 ```bash
 composer require trulyao/php-router
+```
+
+### Update .htaccess file
+
+```
+Options +FollowSymLinks
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !=/index.php
+RewriteCond %{REQUEST_URI} !.*\.png$ [NC]
+RewriteCond %{REQUEST_URI} !.*\.jpg$ [NC]
+RewriteCond %{REQUEST_URI} !.*\.css$ [NC]
+RewriteCond %{REQUEST_URI} !.*\.gif$ [NC]
+RewriteCond %{REQUEST_URI} !.*\.js$ [NC]
+RewriteRule .* /index.php
 ```
 
 You could also download these files and use them directly.
