@@ -43,7 +43,7 @@ You could also download these files and use them directly.
 # Your autoload file
 require(__DIR__ . '/../vendor/autoload.php');
 
- Create a new instance
+# Create a new instance
 $router = new \Trulyao\PhpRouter\Router(__DIR__."/views", "examples");
 
 # GET route
