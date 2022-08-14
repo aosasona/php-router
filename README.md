@@ -66,6 +66,9 @@ $router->post("/", function($req, $res) {
    ]); // sends json response
 });
 
+# Routing with class-based callback
+$router->post("/create", [new NoteController(), "create"]);
+
 # Start the router - very important!
 $router->serve();
 
