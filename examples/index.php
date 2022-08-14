@@ -2,14 +2,16 @@
 
 require(__DIR__ . '/../vendor/autoload.php');
 
-$router = new \Trulyao\PhpRouter\Router(__DIR__."/views", "examples");
+use Trulyao\PhpRouter\Router as Router;
+
+$router = new Router(__DIR__ . "/views", "demo");
 
 /**
  * @desc Simple index route
  * @route /
  */
-$router->get('/', function($req, $res) {
-    return $res->send("<h1>Hello World</h1> </br> Source: static GET! </br> Query(name): {$req->query('name')}")->status(200);
+$router->get('/', function ($req, $res) {
+    return @$res->send("<h1>Hello World</h1> </br> Source: static GET </br> Query(name): {$req->query('name')}")->status(200);
 });
 
 
@@ -17,14 +19,15 @@ $router->get('/', function($req, $res) {
  * @desc Serving a view/using a controller
  * @route /use
  */
-$router->get('/use', function($req, $res) {
+$router->get('/use', function ($req, $res) {
     return $res->use("second.php")->status(200);
 });
+
 /**
  * @desc Responding with JSON
  * @route /json
  */
-$router->get('/json', function($req, $res) {
+$router->get('/json', function ($req, $res) {
     return $res->send(["name" => "Hello"])->status(200);
 });
 
@@ -32,7 +35,7 @@ $router->get('/json', function($req, $res) {
  * @desc [GET] Single dynamic route
  * @route /dynamic/:id
  */
-$router->get('/dynamic/:id', function($req, $res) {
+$router->get('/dynamic/:id', function ($req, $res) {
     return $res->send("<h1>Hello World</h1> </br> Source: dynamic GET! </br> Params(ID): {$req->params("id")}")->status(200);
 });
 
@@ -40,7 +43,7 @@ $router->get('/dynamic/:id', function($req, $res) {
  * @desc [GET] Nested dynamic route
  * @route /dynamic/:id/nested
  */
-$router->get('/dynamic/:id/nested', function($req, $res) {
+$router->get('/dynamic/:id/nested', function ($req, $res) {
     return $res->send("<h1>Hello World</h1> </br> Source: dynamic nested GET! </br> Params(ID): {$req->params("id")} </br> Path: {$req->path()}")->status(200);
 });
 
@@ -48,7 +51,7 @@ $router->get('/dynamic/:id/nested', function($req, $res) {
  * @desc [GET] Deeper dynamic route
  * @route /dynamic/:id/:name
  */
-$router->get('/dynamic/:id/:name', function($req, $res) {
+$router->get('/dynamic/:id/:name', function ($req, $res) {
     return $res->send("<h1>Hello World</h1> </br> Source: dynamic nested GET! </br> Param(ID): {$req->params("id")} </br> Param(Name): {$req->params("name")}")->status(200);
 });
 
@@ -56,7 +59,7 @@ $router->get('/dynamic/:id/:name', function($req, $res) {
  * @desc [GET] Redirecting to another route
  * @route /redirect
  */
-$router->get("/redirect", function($req, $res) {
+$router->get("/redirect", function ($req, $res) {
     return $res->redirect("/examples/dynamic/1");
 });
 

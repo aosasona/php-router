@@ -2,12 +2,16 @@
 
 namespace Trulyao\PhpRouter\Helper;
 
-class Response {
+class Response
+{
 
     public $source_path;
+    public $status_code;
 
-    public function __construct($source_path = "") {
+    public function __construct($source_path = "")
+    {
         $this->source_path = $source_path;
+        $this->status_code = 200;
         header_remove("X-Powered-By");
     }
 
@@ -24,29 +28,38 @@ class Response {
     }
 
     // Send error message to the client
-    public function error($message, $status): void {
+    public function error($message, $status): Response
+    {
         header('Content-Type: application/json');
         http_response_code($status);
         echo json_encode(["error" => $message]);
-        exit;
+        return $this;
     }
 
     public function send($content): Response
     {
         $content_type =  is_array($content) ? "application/json" : "text/html";
-        header('Content-Type: '.$content_type);
+        header('Content-Type: ' . $content_type);
+        if ($this->status_code) {
+            http_response_code($this->status_code);
+        }
         echo is_array($content) ? json_encode($content) : $content;
         return $this;
     }
 
-    public function json($data): Response {
+    public function json($data): Response
+    {
         header('Content-Type: application/json');
+        if ($this->status_code) {
+            http_response_code($this->status_code);
+        }
         echo json_encode($data);
         return $this;
     }
 
-    public function redirect($url): Response {
-        header('Location: '.$url);
+    public function redirect($url): Response
+    {
+        header('Location: ' . $url);
         return $this;
     }
 
@@ -58,18 +71,20 @@ class Response {
         return $this;
     }
 
+    public function status($status_code = 200): Response
+    {
+        http_response_code($status_code ?? 200);
+        $this->status_code = $status_code;
+        return $this;
+    }
+
     // Experimental
-    public function send_file($file_path) {
+    public function send_file($file_path)
+    {
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($file_path) . '"');
         header('Content-Length: ' . filesize($file_path));
         readfile($file_path);
-    }
-
-    public function status ($status_code = 200): Response
-    {
-        http_response_code($status_code);
         return $this;
     }
-
 }

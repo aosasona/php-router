@@ -1,1 +1,1 @@
-<p style="text-align: center; font-size: 0.9rem; padding: 1.5rem; border-top: 1px solid black;">Powered by <b>PHPRouter</b> V1 | Built by <a href="https://github.com/aosasona">Ayodeji</a></p>
+<p style="text-align: center; font-size: 0.9rem; padding: 1.5rem; border-top: 1px solid black;">Powered by <b>PHPRouter</b> | Built by <a href="https://github.com/aosasona">Ayodeji</a></p>

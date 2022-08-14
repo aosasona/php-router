@@ -1,29 +1,29 @@
 {
-    "name": "trulyao/php-router",
-    "description": "A simple express-style router for PHP",
-    "version": "1.0.2",
-    "type": "library",
-    "keywords": [
-        "router",
-        "php",
-        "express",
-        "api"
-    ],
-    "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "Trulyao\\PhpRouter\\": "src/"
-        }
-    },
-    "homepage": "https://github.com/aosasona/php-router",
-    "authors": [
-        {
-            "name": "Ayodeji O",
-            "email": "osasonaayodeji1@gmail.com"
-        }
-    ],
-    "require": {
-      "ext-json": "*",
-        "php": ">=7.1"
+  "name": "trulyao/php-router",
+  "description": "A simple express-style router for PHP",
+  "version": "1.0.3",
+  "type": "library",
+  "keywords": [
+    "router",
+    "php",
+    "express",
+    "api"
+  ],
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Trulyao\\PhpRouter\\": "src/"
     }
+  },
+  "homepage": "https://github.com/aosasona/php-router",
+  "authors": [
+    {
+      "name": "Ayodeji O",
+      "email": "osasonaayodeji1@gmail.com"
+    }
+  ],
+  "require": {
+    "ext-json": "*",
+    "php": ">=7.1"
+  }
 }

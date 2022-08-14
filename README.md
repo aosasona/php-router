@@ -1,4 +1,5 @@
 # PHP Router
+
 PHP-Router is a modern, lightning-fast, and adaptable composer package that provides express-style routing in PHP.
 
 This website is powered by this package -> [View site](https://phprouter.herokuapp.com/)
@@ -25,8 +26,8 @@ RewriteRule .* /index.php
 
 You could also download these files and use them directly.
 
-
 ## Features
+
 - Open source
 - Fast and easy-to-use syntax
 - Provides request and response objects
@@ -38,29 +39,31 @@ You could also download these files and use them directly.
 - Serves static files, JSON and more
 - Helper functions for common tasks like sending JSON, setting status codes etc.
 
-
 ## Usage
 
 `index.php`
+
 ```php
 <?php
 
 # Your autoload file
 require(__DIR__ . '/../vendor/autoload.php');
 
+use \Trulyao\PhpRouter\Router as Router;
+
 # Create a new instance
-$router = new \Trulyao\PhpRouter\Router(__DIR__."/views", "examples");
+$router = new Router(__DIR__."/views", "demo");
 
 # GET route
 $router->get("/", function($req, $res) {
-    return $res->send("<h1>Hello World</h1>")->status(200); // sends html response
+    return $res->status(200)->send("<h1>Hello World</h1>"); // sends html response
 });
 
 # POST route
 $router->post("/", function($req, $res) {
-   return $res->send([
+   return $res->status(200)->send([
        "message" => "Hello World"
-   ])->status(200); // sends json response
+   ]); // sends json response
 });
 
 # Start the router - very important!
@@ -71,9 +74,7 @@ $router->serve();
 
 `/views` - The directory where your views/controllers are located.
 
-`/examples` - The directory where your project (mainly the index.php file that contains your routes) is located, in this case; the `examples` folder.
-
-You will also find more examples in the `examples` folder.
+`/demo` - This is the base url for your application eg. `api` for `/api/*` or `v1` for `/v1/*`.
 
 ## The `$req` object
 
@@ -88,7 +89,6 @@ The `$req` object contains the request data, it also has helper methods for acce
 
 > More methods will be added in the future.
 
-
 ## The `$res` object
 
 The `$res` object is used to control the response and holds data related to responses and just like the request object, it has methods you can use.
@@ -100,15 +100,13 @@ The `$res` object is used to control the response and holds data related to resp
 - `redirect($path)` - Redirect to another path - eg. `/example/login`
 - `status($status)` - Set the status code (defaults to 200, optional)
 
-
 > More methods will also be added in the future.
-
 
 You can access these any functions outside your index file too by using the namespace `Trulyao\PhpRouter\Helper`
 
 ## Error Pages
-You can easily add a custom 404 and 500 page by creating a file in the `/views` directory (or wherever your base path is; where your controllers or views are) called `404.php` and `500.php` 
 
+You can easily add a custom 404 and 500 page by creating a file in the `/views` directory (or wherever your base path is; where your controllers or views are) called `404.php` and `500.php`
 
 ## Contribute
 

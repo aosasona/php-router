@@ -1,9 +1,11 @@
 <?php
+
 namespace Trulyao\PhpRouter;
 
 use \Trulyao\PhpRouter\Helper as resource_helper;
 
-class Router {
+class Router
+{
     public $source_path;
     public $base_path;
     public $method;
@@ -16,7 +18,7 @@ class Router {
         $this->source_path = $source_path;
         $this->base_path = $base_path;
         $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->request_path = rtrim($_SERVER['REQUEST_URI'], "/");
+        $this->request_path = ltrim(rtrim($_SERVER['REQUEST_URI'], "/"), "/");
 
         # Remove query string from request path
         if ($pos = strpos($this->request_path, "?")) {
@@ -24,7 +26,7 @@ class Router {
         }
 
         # Extract params from request path - current path
-        $this->request_params = explode('/', rtrim($this->request_path, "/"));
+        $this->request_params = explode('/', ltrim(rtrim($this->request_path, "/"), "/"));
         $this->request_params = array_filter($this->request_params, function ($value) {
             return $value !== '';
         });
@@ -45,14 +47,15 @@ class Router {
     }
 
     # Send error message to the client
-    private function send_error_page($error_code = 404) {
-        switch($error_code) {
+    private function send_error_page($error_code = 404)
+    {
+        switch ($error_code) {
             case 404:
                 header("HTTP/1.0 404 Not Found");
-                if($this->check_file_exists('404.php')) {
+                if ($this->check_file_exists('404.php')) {
                     include $this->get_file_path('404.php');
                 } else {
-                    include __DIR__."/defaults/404.php";
+                    include __DIR__ . "/defaults/404.php";
                 }
                 break;
             case 405:
@@ -60,10 +63,10 @@ class Router {
                 break;
             default:
                 header("HTTP/1.0 500 Internal Server Error");
-                if($this->check_file_exists('500.php')) {
+                if ($this->check_file_exists('500.php')) {
                     include $this->get_file_path('500.php');
                 } else {
-                    include __DIR__."/defaults/500.php";
+                    include __DIR__ . "/defaults/500.php";
                 }
                 break;
         }
@@ -75,24 +78,24 @@ class Router {
         $path = $path !== "/" ? $path : "";
         $path = $this->base_path . $path;
 
-        if(ltrim(rtrim($path, "/"), "/") === ltrim(rtrim($this->request_path, "/"), "/")) {
+
+        if (ltrim(rtrim($path, "/"), "/") === ltrim(rtrim($this->request_path, "/"), "/")) {
             return true;
         }
 
-        $path_parts = explode("/", $path);
+        $path_parts = explode("/", ltrim(rtrim($path, "/"), "/"));
         $request_parts = $this->request_params;
 
 
-        foreach($path_parts as $key => $path_value) {
-            if(count($path_parts) === count($request_parts)){
-                if(strpos($path_value, ":") === 0) {
+        foreach ($path_parts as $key => $path_value) {
+            if (count($path_parts) === count($request_parts)) {
+                if (strpos($path_value, ":") === 0) {
                     unset($path_parts[$key]);
                     unset($request_parts[$key]);
                 }
-                if(count(array_diff($path_parts, $request_parts)) === 0) {
+                if (count(array_diff($path_parts, $request_parts)) === 0) {
                     return true;
                 }
-
             }
         }
 
@@ -104,10 +107,14 @@ class Router {
     private function add_route($path, $cb, $method = "GET")
     {
         $params = [];
+        $path = empty($this->base_path) ? ltrim(rtrim($path, "/"), "/") : rtrim($path, "/");
         $path_array = explode('/', $path);
-        foreach($path_array as $key => $value) {
-            if(strpos($value, ":") !== false && strpos($value, ":") === 0) {
-                $params[] = str_replace(":", "", $value);
+
+        foreach ($path_array as $key => $value) {
+            if (!empty($value)) {
+                if (strpos($value, ":") !== false && strpos($value, ":") === 0) {
+                    $params[] = str_replace(":", "", $value);
+                }
             }
         }
         $dynamic = count($params) > 0;
@@ -123,30 +130,35 @@ class Router {
     }
 
     # Create a GET route
-    public function get($path, $cb) {
+    public function get($path, $cb)
+    {
         $this->add_route($path, $cb, "GET");
     }
 
     # Create a POST route
-    public function post($path, $cb) {
+    public function post($path, $cb)
+    {
         $this->add_route($path, $cb, "POST");
     }
 
     # Create a DELETE route
-    public function delete($path, $cb) {
+    public function delete($path, $cb)
+    {
         $this->add_route($path, $cb, "DELETE");
     }
 
     # Create a PUT route
-    public function put($path, $cb) {
+    public function put($path, $cb)
+    {
         $this->add_route($path, $cb, "PUT");
     }
 
     # Get a route based on the request method and path
-    private function get_route($path, $method) {
+    private function get_route($path, $method)
+    {
 
-        foreach($this->routes as $route) {
-            if($route["method"] === $method && $this->compare_current_path($route["path"])) {
+        foreach ($this->routes as $route) {
+            if ($route["method"] === $method && $this->compare_current_path($route["path"])) {
                 return $route;
             }
         }
@@ -163,6 +175,8 @@ class Router {
                 $current_index = array_search(":{$param}", $route["path_array"]);
                 $values[$param] = htmlspecialchars($this->request_params[$current_index]);
             }
+
+
             return $values;
         } catch (\Exception $e) {
             return [];
@@ -171,21 +185,22 @@ class Router {
 
 
     # Serve routes and send error page if no match is found
-    private function auto_serve($method){
-        try{
-        $route = $this->get_route($this->request_path, strtoupper($method));
+    private function auto_serve($method)
+    {
+        try {
+            $route = $this->get_route($this->request_path, strtoupper($method));
 
-        $params = count($route["params"] ?? []) > 0 ? $this->get_params_values($route) : [];
-        $response = new resource_helper\Response($this->source_path);
-        $request = new resource_helper\Request([$_GET, $_POST], $params, $this->request_path);
-        
+            $params = count($route["params"] ?? []) > 0 ? $this->get_params_values($route) : [];
+            $response = new resource_helper\Response($this->source_path);
+            $request = new resource_helper\Request([$_GET, $_POST], $params, $this->request_path);
 
-        if($route !== null) {
-            $route['cb']($request, $response);
-        } else {
-            $this->send_error_page(404);
-        }
-        exit;
+
+            if ($route !== null) {
+                $route['cb']($request, $response);
+            } else {
+                $this->send_error_page(404);
+            }
+            exit;
         } catch (\Exception $e) {
             $this->send_error_page(500);
             exit;
@@ -194,20 +209,21 @@ class Router {
 
 
     # Serve routes and their controllers
-    public function serve() {
-            switch($this->method) {
-                case "GET":
-                    $this->auto_serve("GET");
-                    break;
-                case "POST":
-                    $this->auto_serve("POST");
-                    break;
-                case "DELETE":
-                    $this->auto_serve("DELETE");
-                    break;
-                case "PUT":
-                    $this->auto_serve("PUT");
-                    break;
-            }
+    public function serve()
+    {
+        switch ($this->method) {
+            case "GET":
+                $this->auto_serve("GET");
+                break;
+            case "POST":
+                $this->auto_serve("POST");
+                break;
+            case "DELETE":
+                $this->auto_serve("DELETE");
+                break;
+            case "PUT":
+                $this->auto_serve("PUT");
+                break;
+        }
     }
 }
