@@ -1,6 +1,6 @@
 # PHP Router
 
-PHP-Router is a modern, lightning-fast, and adaptable composer package that provides express-style routing in PHP.
+PHP-Router is a modern, fast, and adaptable composer package that provides express-style routing in PHP.
 
 This website is powered by this package -> [View site](https://phprouter.herokuapp.com/)
 
@@ -77,17 +77,17 @@ $router->serve();
 
 `/views` - The directory where your views/controllers are located.
 
-`/demo` - This is the base url for your application eg. `api` for `/api/*` or `v1` for `/v1/*`.
+`/demo` - This is the base URL for your application eg. `api` for `/api/*` or `v1` for `/v1/*`.
 
 ## The `$req` object
 
 The `$req` object contains the request data, it also has helper methods for accessing this data.
 
-- `query($name)` - Returns the query string value for the given name or all query string values if no name is given.
+- `query("name")` - Returns the query string value for the given name or all query string values if no name is given.
 
-- `body($name)` - Returns the body value for the given name or all body values if no name is given.
+- `body("name")` - Returns the body value for the given name or all body values if no name is given.
 
-- `params($name)` - Returns the params value for the given name or all file values if no name is given.
+- `params("name")` - Returns the params value for the given name or all file values if no name is given.
 - `path()` - Get current full request path.
 
 > More methods will be added in the future.
@@ -105,7 +105,7 @@ The `$res` object is used to control the response and holds data related to resp
 
 > More methods will also be added in the future.
 
-You can access these any functions outside your index file too by using the namespace `Trulyao\PhpRouter\Helper`
+You can access these any functions outside your index file too by using the namespace `Trulyao\PhpRouter\Helper` - Yes, the `Helper` namespace should have been plural, my bad.
 
 ## Error Pages
 
