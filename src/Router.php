@@ -2,82 +2,77 @@
 
 namespace Trulyao\PhpRouter;
 
-use \Trulyao\PhpRouter\Helper as resource_helper;
+use Closure;
+use \Trulyao\PhpRouter\Helper\Request as Request;
+use \Trulyao\PhpRouter\Helper\Response as Response;
 
 class Router
 {
-    public $source_path;
-    public $base_path;
-    public $method;
-    public $request_path;
-    public $request_params;
-    public $routes;
+    protected string $source_path;
+    protected string $base_path;
+    protected string $method;
+    protected string $request_path;
+    protected array $request_params;
+    public array $routes;
+    protected array $allowed_content_types;
+    protected ?string $route_cache;
 
     public function __construct($source_path, $base_path = "")
     {
         $this->source_path = $source_path;
         $this->base_path = $base_path;
         $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->request_path = ltrim(rtrim($_SERVER['REQUEST_URI'], "/"), "/");
-
-        # Remove query string from request path
-        if ($pos = strpos($this->request_path, "?")) {
-            $this->request_path = substr($this->request_path, 0, $pos);
-        }
-
-        # Extract params from request path - current path
-        $this->request_params = explode('/', ltrim(rtrim($this->request_path, "/"), "/"));
-        $this->request_params = array_filter($this->request_params, function ($value) {
-            return $value !== '';
-        });
-        $this->request_params = array_values($this->request_params);
+        $this->strip_extra_url_data();
+        $this->extract_params_from_request_path();
         $this->routes = [];
+        $this->route_cache = null;
+        $this->allowed_content_types = [
+            "application/json",
+            "text/html",
+        ];
     }
 
-    # Get file path from source path and request path
+
+    /**
+     * @param $file_name
+     * @return string
+     * @description Get file path from source path and request path
+     */
     private function get_file_path($file_name): string
     {
         return $this->source_path . '/' . $file_name;
     }
 
-    # Check if the controller file exists
+
+    /**
+     * @param $file_name
+     * @return bool
+     * @description Check if the controller/view file exists
+     */
     private function check_file_exists($file_name): bool
     {
         return file_exists($this->get_file_path($file_name));
     }
 
-    # Send error message to the client
-    private function send_error_page($error_code = 404)
+    /**
+     * @param int $error_code
+     * @return void
+     * @description Return error page
+     */
+    private function send_error_page(int $error_code = 404)
     {
-        switch ($error_code) {
-            case 404:
-                header("HTTP/1.0 404 Not Found");
-                if ($this->check_file_exists('404.php')) {
-                    include $this->get_file_path('404.php');
-                } else {
-                    include __DIR__ . "/defaults/404.php";
-                }
-                break;
-            case 405:
-                header("HTTP/1.0 405 Method Not Allowed");
-                break;
-            default:
-                header("HTTP/1.0 500 Internal Server Error");
-                if ($this->check_file_exists('500.php')) {
-                    include $this->get_file_path('500.php');
-                } else {
-                    include __DIR__ . "/defaults/500.php";
-                }
-                break;
-        }
+        $this->handle_error($error_code);
     }
 
-    # Compare current path with the route path
+    /**
+     * @param $path
+     * @return bool
+     * @description Compare current path with the route path
+     */
     private function compare_current_path($path): bool
     {
         $path = $path !== "/" ? $path : "";
         $path = $this->base_path . $path;
-
 
         if (ltrim(rtrim($path, "/"), "/") === ltrim(rtrim($this->request_path, "/"), "/")) {
             return true;
@@ -85,7 +80,6 @@ class Router
 
         $path_parts = explode("/", ltrim(rtrim($path, "/"), "/"));
         $request_parts = $this->request_params;
-
 
         foreach ($path_parts as $key => $path_value) {
             if (count($path_parts) === count($request_parts)) {
@@ -99,12 +93,215 @@ class Router
             }
         }
 
-
         return false;
     }
 
-    # Add a route to the routes array
-    private function add_route($path, $cb, $method = "GET")
+
+    /**
+     * @param $data
+     * @param string $method
+     * @return void
+     * @description Add a route to the routes array
+     */
+    private function add_route($data, string $method = "GET")
+    {
+        $path = $this->route_cache !== null ? $this->route_cache : $data[0];
+
+        list($params, $path, $path_array, $dynamic) = $this->extract_route_details($path);
+
+        $this->routes[] = [
+            "method" => $method,
+            "path" => $path,
+            "cb" => end($data),
+            "middleware" => count($data) > 1 ? array_slice($data, $this->route_cache !== null ? 1 : 0, -1) : [],
+            "params" => $params,
+            "path_array" => $path_array,
+            "dynamic" => $dynamic
+        ];
+    }
+
+
+    /**
+     * @param mixed | array | callable | Closure ...$data
+     * @return self
+     * @description Add a GET route to the routes array
+     */
+    public function get(...$data): Router
+    {
+        $this->add_route($data, "GET");
+        return $this;
+    }
+
+
+    /**
+     * @param mixed | array | callable | Closure ...$data
+     * @return self
+     * @description Add a POST route to the routes array
+     */
+    public function post(...$data): Router
+    {
+        $this->add_route($data, "POST");
+        return $this;
+    }
+
+
+    /**
+     * @param mixed ...$data
+     * @return self
+     * @description Add a DELETE route to the routes array
+     */
+    public function delete(...$data): Router
+    {
+        $this->add_route($data, "DELETE");
+        return $this;
+    }
+
+    # Create a PUT route
+
+    /**
+     * @param mixed ...$data
+     * @return self
+     */
+    public function put(...$data): Router
+    {
+        $this->add_route($data, "PUT");
+        return $this;
+    }
+
+
+    /**
+     * @param $path
+     * @param $method
+     * @return mixed|null
+     */
+    protected function get_route($path, $method)
+    {
+        foreach ($this->routes as $route) {
+            if ($route["method"] === $method && $this->compare_current_path($route["path"])) {
+                return $route;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * @param $route
+     * @return array
+     */
+    private function get_params_values($route): array
+    {
+        try {
+            $params = $route["params"];
+            $values = [];
+            foreach ($params as $param) {
+                $current_index = array_search(":{$param}", $route["path_array"]);
+                $values[$param] = htmlspecialchars($this->request_params[$current_index]);
+            }
+            return $values;
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+
+    /**
+     * @param $method
+     * @return void
+     */
+    private function auto_serve($method): void
+    {
+        try {
+            $route = $this->get_route($this->request_path, strtoupper($method));
+
+            $params = count($route["params"] ?? []) > 0 ? $this->get_params_values($route) : [];
+            $response = new Response($this->source_path);
+            $request = new Request([$_GET, $_POST], $params, $this->request_path);
+
+            if ($route !== null) {
+                $route['cb']($request, $response);
+            } else {
+                $this->send_error_page();
+            }
+            return;
+        } catch (\Exception $e) {
+            $this->send_error_page(500);
+            exit;
+        }
+    }
+
+
+    # Serve routes and their controllers
+    public function serve()
+    {
+        $this->auto_serve(strtoupper($_SERVER["REQUEST_METHOD"]));
+//        switch ($this->method) {
+//            case "GET":
+//                $this->auto_serve("GET");
+//                break;
+//            case "POST":
+//                $this->auto_serve("POST");
+//                break;
+//            case "DELETE":
+//                $this->auto_serve("DELETE");
+//                break;
+//            case "PUT":
+//                $this->auto_serve("PUT");
+//                break;
+//        }
+    }
+
+    /**
+     * @param $error_code
+     * @return void
+     */
+    public function handle_error($error_code): void
+    {
+        switch ($error_code) {
+            case 404:
+                header("HTTP/1.0 404 Not Found");
+                if ($this->check_file_exists('404.php')) {
+                    include $this->get_file_path('404.php');
+                } else {
+                    include __DIR__ . "/defaults/404.php";
+                }
+                break;
+            case 405:
+                header("HTTP/1.0 405 Method Not Allowed");
+                if ($this->check_file_exists('405.php')) {
+                    include $this->get_file_path('405.php');
+                } else {
+                    include __DIR__ . "/defaults/405.php";
+                }
+                break;
+            default:
+                header("HTTP/1.0 500 Internal Server Error");
+                if ($this->check_file_exists('500.php')) {
+                    include $this->get_file_path('500.php');
+                } else {
+                    include __DIR__ . "/defaults/500.php";
+                }
+                break;
+        }
+    }
+
+    /**
+     * @return void
+     */
+    private function extract_params_from_request_path(): void
+    {
+        $this->request_params = explode('/', ltrim(rtrim($this->request_path, "/"), "/"));
+        $this->request_params = array_filter($this->request_params, function ($value) {
+            return $value !== '';
+        });
+        $this->request_params = array_values($this->request_params);
+    }
+
+    /**
+     * @param $path
+     * @return array
+     */
+    protected function extract_route_details($path): array
     {
         $params = [];
         $path = empty($this->base_path) ? ltrim(rtrim($path, "/"), "/") : rtrim($path, "/");
@@ -118,112 +315,18 @@ class Router
             }
         }
         $dynamic = count($params) > 0;
-
-        $this->routes[] = [
-            "method" => $method,
-            "path" => $path,
-            "cb" => $cb,
-            "params" => $params,
-            "path_array" => $path_array,
-            "dynamic" => $dynamic
-        ];
+        return array($params, $path, $path_array, $dynamic);
     }
 
-    # Create a GET route
-    public function get($path, $cb)
+    /**
+     * @return void
+     */
+    protected function strip_extra_url_data(): void
     {
-        $this->add_route($path, $cb, "GET");
-    }
+        $this->request_path = ltrim(rtrim($_SERVER['REQUEST_URI'], "/"), "/");
 
-    # Create a POST route
-    public function post($path, $cb)
-    {
-        $this->add_route($path, $cb, "POST");
-    }
-
-    # Create a DELETE route
-    public function delete($path, $cb)
-    {
-        $this->add_route($path, $cb, "DELETE");
-    }
-
-    # Create a PUT route
-    public function put($path, $cb)
-    {
-        $this->add_route($path, $cb, "PUT");
-    }
-
-    # Get a route based on the request method and path
-    private function get_route($path, $method)
-    {
-
-        foreach ($this->routes as $route) {
-            if ($route["method"] === $method && $this->compare_current_path($route["path"])) {
-                return $route;
-            }
-        }
-        return null;
-    }
-
-    # Extract the params from the request path
-    private function get_params_values($route): array
-    {
-        try {
-            $params = $route["params"];
-            $values = [];
-            foreach ($params as $param) {
-                $current_index = array_search(":{$param}", $route["path_array"]);
-                $values[$param] = htmlspecialchars($this->request_params[$current_index]);
-            }
-
-
-            return $values;
-        } catch (\Exception $e) {
-            return [];
-        }
-    }
-
-
-    # Serve routes and send error page if no match is found
-    private function auto_serve($method)
-    {
-        try {
-            $route = $this->get_route($this->request_path, strtoupper($method));
-
-            $params = count($route["params"] ?? []) > 0 ? $this->get_params_values($route) : [];
-            $response = new resource_helper\Response($this->source_path);
-            $request = new resource_helper\Request([$_GET, $_POST], $params, $this->request_path);
-
-
-            if ($route !== null) {
-                $route['cb']($request, $response);
-            } else {
-                $this->send_error_page(404);
-            }
-            exit;
-        } catch (\Exception $e) {
-            $this->send_error_page(500);
-            exit;
-        }
-    }
-
-
-    # Serve routes and their controllers
-    public function serve()
-    {
-        switch ($this->method) {
-            case "GET":
-                $this->auto_serve("GET");
-                break;
-            case "POST":
-                $this->auto_serve("POST");
-                break;
-            case "DELETE":
-                $this->auto_serve("DELETE");
-                break;
-            case "PUT":
-                $this->auto_serve("PUT");
-                break;
+        if ($pos = strpos($this->request_path, "?")) {
+            $this->request_path = substr($this->request_path, 0, $pos);
         }
     }
 }

@@ -12,9 +12,13 @@ composer require trulyao/php-router
 
 ### Update .htaccess file
 
+This is very important to get the router working correctly.
+
+
 ```
 Options +FollowSymLinks
 RewriteEngine On
+RewriteRule .* - [E=HTTP_CONTENT_TYPE:%{HTTP:Content-Type},L]
 RewriteCond %{REQUEST_URI} !=/index.php
 RewriteCond %{REQUEST_URI} !.*\.png$ [NC]
 RewriteCond %{REQUEST_URI} !.*\.jpg$ [NC]
@@ -38,6 +42,7 @@ You could also download these files and use them directly.
 - Supports redirection
 - Serves static files, JSON and more
 - Helper functions for common tasks like sending JSON, setting status codes etc.
+- Function and class based controller and middleware support
 
 ## Usage
 
@@ -46,28 +51,24 @@ You could also download these files and use them directly.
 ```php
 <?php
 
-# Your autoload file
-require(__DIR__ . '/../vendor/autoload.php');
+require(__DIR__ . '/vendor/autoload.php');
 
 use \Trulyao\PhpRouter\Router as Router;
 
 # Create a new instance
 $router = new Router(__DIR__."/views", "demo");
 
-# GET route
 $router->get("/", function($req, $res) {
     return $res->status(200)->send("<h1>Hello World</h1>"); // sends html response
 });
 
-# POST route
 $router->post("/", function($req, $res) {
    return $res->status(200)->send([
        "message" => "Hello World"
-   ]); // sends json response
+   ]); // sends json response automatically
 });
 
-# Routing with class-based callback
-$router->post("/create", [new NoteController(), "create"]);
+$router->delete("/", [new NoteController(), "destroy"]);
 
 # Start the router - very important!
 $router->serve();

@@ -6,6 +6,7 @@ use Trulyao\PhpRouter\Router as Router;
 
 $router = new Router(__DIR__ . "/views", "demo");
 
+
 /**
  * @desc Simple index route
  * @route /
