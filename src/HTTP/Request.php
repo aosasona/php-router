@@ -5,10 +5,11 @@ namespace Trulyao\PhpRouter\HTTP;
 class Request
 {
 
-    private ?array $request_data;
-    private ?array $request_params;
+    protected ?array $request_data;
+    protected ?array $request_params;
     public string $request_path;
     private string $content_type;
+    public ?array $data;
 
     public function __construct($request_data, $params = [], $path = "")
     {
@@ -16,6 +17,7 @@ class Request
         $this->request_params = $params;
         $this->request_path = $path;
         $this->content_type = $_SERVER['HTTP_CONTENT_TYPE'] ?? "text/html";
+        $this->data = [];
     }
 
     /**
@@ -75,7 +77,7 @@ class Request
     /**
      * @return array
      */
-    public function get_headers(): array
+    public function headers(): array
     {
         $headers = [];
         foreach ($_SERVER as $name => $value) {
@@ -86,15 +88,27 @@ class Request
         return $headers;
     }
 
+    /**
+     * @param $key
+     * @param $value
+     * @return void
+     */
+    public function append($key, $value)
+    {
+        $this->data[$key] = $value;
+    }
+
 
     /**
      * @return array
      */
-    protected function get_request_data(): array {
+    protected function get_full_request_data(): array {
         return [
             "query" => $this->query(),
             "body" => $this->body(),
-            "params" => $this->request_params
+            "params" => $this->request_params,
+            "headers" => $this->headers(),
+            "data" => $this->data
         ];
     }
 }

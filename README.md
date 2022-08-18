@@ -100,13 +100,14 @@ The `$res` object is used to control the response and holds data related to resp
 - `error($message, $status)` - Send a JSON error response.
 - `send($data)` - Send a JSON/HTML response; automatically detected.
 - `json($data)` - Send a JSON response.
-- `use($file)` - Render a view or use a controller file - to use the request and response objects in your controller, use the include directive instead in a callback.
+- `render($file)` - Render a view with the built-in mini template engine, you can also pass in your own data.
 - `redirect($path)` - Redirect to another path - eg. `/example/login`
 - `status($status)` - Set the status code (defaults to 200, optional)
+- 
 
 > More methods will also be added in the future.
 
-You can access these any functions outside your index file too by using the namespace `Trulyao\PhpRouter\Helper` - Yes, the `Helper` namespace should have been plural, my bad.
+You can access these any functions outside your index or main file too by using the namespace `Trulyao\PhpRouter\HTTP`
 
 ## Error Pages
 

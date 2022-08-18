@@ -56,8 +56,9 @@ class Response
     {
         $content_type = is_array($content) ? "application/json" : "text/html";
         header('Content-Type: ' . $content_type);
+        header("X-Content-Type-Options: nosniff");
         http_response_code($this->status_code);
-        echo is_array($content) ? json_encode($content) : filter_var($content, FILTER_SANITIZE_STRING);
+        echo is_array($content) ? json_encode($content) : $content;
         return $this;
     }
 
@@ -86,10 +87,10 @@ class Response
 
     /**
      * @param string $file
-     * @param array $view_data
+     * @param array|null $view_data
      * @return self
      */
-    public function render(string $file, array $view_data): Response
+    public function render(string $file, ?array $view_data = []): Response
     {
         if ($this->check_file_exists($file)) {
             include $this->get_file_path($file);

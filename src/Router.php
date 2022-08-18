@@ -3,8 +3,10 @@
 namespace Trulyao\PhpRouter;
 
 use Closure;
-use \Trulyao\PhpRouter\HTTP\Request as Request;
-use \Trulyao\PhpRouter\HTTP\Response as Response;
+use Exception;
+use Trulyao\PhpRouter\HTTP\Middleware;
+use Trulyao\PhpRouter\HTTP\Request as Request;
+use Trulyao\PhpRouter\HTTP\Response as Response;
 
 class Router
 {
@@ -21,7 +23,7 @@ class Router
     {
         $this->source_path = $source_path;
         $this->base_path = $base_path;
-        $this->method = $_SERVER['REQUEST_METHOD'];
+        $this->method = $_SERVER['REQUEST_METHOD'] ?? "GET";
         $this->strip_extra_url_data();
         $this->extract_params_from_request_path();
         $this->routes = [];
@@ -113,11 +115,23 @@ class Router
             "method" => $method,
             "path" => $path,
             "cb" => end($data),
-            "middleware" => count($data) > 1 ? array_slice($data, $this->route_cache !== null ? 1 : 0, -1) : [],
+            "middleware" => count($data) > 1 ? array_slice($data, $this->route_cache !== null ? 0 : 1, -1) : [],
             "params" => $params,
             "path_array" => $path_array,
             "dynamic" => $dynamic
         ];
+
+    }
+
+
+    /**
+     * @param string $path
+     * @return $this
+     */
+    public function route(string $path): Router
+    {
+        $this->route_cache = $path;
+        return $this;
     }
 
 
@@ -170,11 +184,11 @@ class Router
 
 
     /**
-     * @param $path
+     * @param $_
      * @param $method
      * @return mixed|null
      */
-    protected function get_route($path, $method)
+    public function get_route($_, $method)
     {
         foreach ($this->routes as $route) {
             if ($route["method"] === $method && $this->compare_current_path($route["path"])) {
@@ -199,7 +213,7 @@ class Router
                 $values[$param] = htmlspecialchars($this->request_params[$current_index]);
             }
             return $values;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [];
         }
     }
@@ -219,12 +233,16 @@ class Router
             $request = new Request([$_GET, $_POST], $params, $this->request_path);
 
             if ($route !== null) {
+                if(count($route["middleware"]) > 0) {
+                    $middleware = new Middleware($route["middleware"], $request, $response);
+                    $middleware->handle();
+                }
                 $route['cb']($request, $response);
             } else {
                 $this->send_error_page();
             }
             return;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->send_error_page(500);
             exit;
         }
@@ -235,20 +253,6 @@ class Router
     public function serve()
     {
         $this->auto_serve(strtoupper($_SERVER["REQUEST_METHOD"]));
-//        switch ($this->method) {
-//            case "GET":
-//                $this->auto_serve("GET");
-//                break;
-//            case "POST":
-//                $this->auto_serve("POST");
-//                break;
-//            case "DELETE":
-//                $this->auto_serve("DELETE");
-//                break;
-//            case "PUT":
-//                $this->auto_serve("PUT");
-//                break;
-//        }
     }
 
     /**
@@ -323,7 +327,7 @@ class Router
      */
     protected function strip_extra_url_data(): void
     {
-        $this->request_path = ltrim(rtrim($_SERVER['REQUEST_URI'], "/"), "/");
+        $this->request_path = ltrim(rtrim($_SERVER['REQUEST_URI'] ?? "", "/"), "/");
 
         if ($pos = strpos($this->request_path, "?")) {
             $this->request_path = substr($this->request_path, 0, $pos);

@@ -28,5 +28,10 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^9"
+  },
+  "scripts": {
+    "start:dev": "php -S localhost:20000 -t examples",
+    "test": "vendor/bin/phpunit --verbose __tests__",
+    "test:watch": "vendor/bin/phpunit --verbose --watch __tests__"
   }
 }
