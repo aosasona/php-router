@@ -1,6 +1,6 @@
 <?php
 
-use \Trulyao\PhpRouter\Helper as helper;
+use \Trulyao\PhpRouter\HTTP as helper;
 
 $sample_json = [
     "name" => "John Doe",
@@ -11,4 +11,4 @@ $sample_json = [
     "zip" => "10001"
 ];
 
-helper\JSON::send($sample_json);
+Utils\JSON::send($sample_json);

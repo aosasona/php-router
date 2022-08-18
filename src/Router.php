@@ -3,8 +3,8 @@
 namespace Trulyao\PhpRouter;
 
 use Closure;
-use \Trulyao\PhpRouter\Helper\Request as Request;
-use \Trulyao\PhpRouter\Helper\Response as Response;
+use \Trulyao\PhpRouter\HTTP\Request as Request;
+use \Trulyao\PhpRouter\HTTP\Response as Response;
 
 class Router
 {

@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="PHPRouter" pattern="file:src||file[php-router]:*||file[php-router]:src/*||file[php-router]:__tests__/*||file[php-router]:examples/*||file:CHANGELOG.md||file:README.md" />
+</component>

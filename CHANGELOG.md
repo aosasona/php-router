@@ -8,3 +8,4 @@
 - Added support for JSON input via file_get_contents()
 - Refactored and improved code - SnakeCase is used for uniformity and improved readability
 - Made get_route method public for unit testing purposes
+- `Helper` namespace is now `HTTP` with a new `TemplateEngine` class
