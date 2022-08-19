@@ -2,6 +2,8 @@
 
 namespace Trulyao\PhpRouter\HTTP;
 
+use Trulyao\PhpRouter\Engines\TemplateEngine;
+
 class Response
 {
 
@@ -87,13 +89,15 @@ class Response
 
     /**
      * @param string $file
-     * @param array|null $view_data
+     * @param Request $request
+     * @param array|null $extra_data
      * @return self
      */
-    public function render(string $file, ?array $view_data = []): Response
+    public function render(string $file, Request $request,?array $extra_data = []): Response
     {
         if ($this->check_file_exists($file)) {
-            include $this->get_file_path($file);
+            $data = array_merge($request->get_full_request_data(), $extra_data);
+            TemplateEngine::render($this->get_file_path($file), $data);
         } else {
             $this->send_error_page();
         }

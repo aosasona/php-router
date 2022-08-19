@@ -105,6 +105,10 @@ The `$req` object contains the request data, it also has helper methods for acce
 
 - `params("name")` - Returns the params value for the given name or all file values if no name is given.
 - `path()` - Get current full request path.
+- `headers()` - Get all request headers.
+- `header("name")` - Get a single request header value.
+- `append($key, $value)` - Append data to the request object.
+- `data` - The data array for the request object (useful for passing data to the middleware and callback functions).
 
 > More methods will be added in the future.
 
@@ -118,12 +122,20 @@ The `$res` object is used to control the response and holds data related to resp
 - `render($file)` - Render a view with the built-in mini template engine, you can also pass in your own data.
 - `redirect($path)` - Redirect to another path - eg. `/example/login`
 - `status($status)` - Set the status code (defaults to 200, optional)
-- `append($key, $value)` - Append data to the request object.
-- `data` - The data array for the request object (useful for passing data to the middleware and callback functions).
+
 
 > More methods will also be added in the future.
 
-You can access these any functions outside your index or main file too by using the namespace `Trulyao\PhpRouter\HTTP`
+You can access these any functions outside your index or main file too by using the namespace `Trulyao\PhpRouter\HTTP`. Also, you are not constrained to any particular coding style or variable naming convention either.
+
+## Views & Templates
+In views, you are provided with the following variables by default:
+- `query` -  The query string values.
+- `body` - The request body values.
+- `params` - The request params values.
+- `headers` - The request headers.
+- `data` - User defined data.
+> Note: headers are made case insensitive while accessing them in views.
 
 ## Error Pages
 

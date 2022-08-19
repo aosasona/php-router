@@ -18,6 +18,7 @@ class Router
     public array $routes;
     protected array $allowed_content_types;
     protected ?string $route_cache;
+    private $content_type;
 
     public function __construct($source_path, $base_path = "")
     {
@@ -28,10 +29,20 @@ class Router
         $this->extract_params_from_request_path();
         $this->routes = [];
         $this->route_cache = null;
+        $this->content_type = $_SERVER['HTTP_CONTENT_TYPE'] ?? "text/html";
         $this->allowed_content_types = [
             "application/json",
             "text/html",
         ];
+    }
+
+    /**
+     * @param array $content_types
+     * @return void
+     */
+    public function allowed(array $content_types)
+    {
+        $this->allowed_content_types = $content_types;
     }
 
 
@@ -226,6 +237,13 @@ class Router
     private function auto_serve($method): void
     {
         try {
+
+            // check if the content type is allowed
+            if (!in_array($this->content_type, $this->allowed_content_types) && $this->content_type !== "text/html") {
+                $this->send_error_page(405);
+            }
+
+
             $route = $this->get_route($this->request_path, strtoupper($method));
 
             $params = count($route["params"] ?? []) > 0 ? $this->get_params_values($route) : [];

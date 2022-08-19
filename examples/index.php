@@ -12,16 +12,29 @@ $router = new Router(__DIR__ . "/views", "demo");
  * @route /
  */
 $router->get('/', function ($req, $res) {
-    return $res->send("<h1>Hello World</h1> <br/> Source: static GET </br> Query(name): {$req->query('name')}")->status(200);
+    return $res->send("<h1>Hello World</h1> <br/> 
+                Source: static GET </br> 
+                Query(name): {$req->query('name')}")->status(200);
 });
 
 
 /**
- * @desc Serving a view/using a controller
- * @route /use
+ * @desc Serving a view
+ * @route /render
  */
 $router->get('/render', function ($req, $res) {
-    return $res->render("second.php")->status(200);
+    return $res->render("second.php", $req);
+});
+
+/**
+ * @desc Serving a view with middleware
+ * @route /render/middleware
+ */
+$router->get('/render/middleware', function ($req) {
+    $req->append('name', 'Trulyao');
+    $req->append('more', ["first_name" => "Joe", "last_name" => "Zhang"]);
+}, function ($req, $res) {
+    return $res->render("middleware_view.php", $req);
 });
 
 /**
@@ -37,7 +50,9 @@ $router->get('/json', function ($req, $res) {
  * @route /dynamic/:id
  */
 $router->get('/dynamic/:id', function ($req, $res) {
-    return $res->send("<h1>Hello World</h1> </br> Source: dynamic GET! </br> Params(ID): {$req->params("id")}")->status(200);
+    return $res->send("<h1>Hello World</h1> </br> 
+                Source: dynamic GET! </br> 
+                Params(ID): {$req->params("id")}")->status(200);
 });
 
 /**
@@ -45,7 +60,10 @@ $router->get('/dynamic/:id', function ($req, $res) {
  * @route /dynamic/:id/nested
  */
 $router->get('/dynamic/:id/nested', function ($req, $res) {
-    return $res->send("<h1>Hello World</h1> </br> Source: dynamic nested GET! </br> Params(ID): {$req->params("id")} </br> Path: {$req->path()}")->status(200);
+    return $res->send("<h1>Hello World</h1> </br> 
+                Source: dynamic nested GET! </br> 
+                Params(ID): {$req->params("id")} </br> 
+                Path: {$req->path()}")->status(200);
 });
 
 /**
@@ -53,7 +71,10 @@ $router->get('/dynamic/:id/nested', function ($req, $res) {
  * @route /dynamic/:id/:name
  */
 $router->get('/dynamic/:id/:name', function ($req, $res) {
-    return $res->send("<h1>Hello World</h1> </br> Source: dynamic nested GET! </br> Param(ID): {$req->params("id")} </br> Param(Name): {$req->params("name")}")->status(200);
+    return $res->send("<h1>Hello World</h1> 
+            </br> Source: dynamic nested GET! </br> 
+            Param(ID): {$req->params("id")} </br> 
+            Param(Name): {$req->params("name")}")->status(200);
 });
 
 /**

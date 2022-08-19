@@ -74,6 +74,12 @@ class Request
         return $this->request_path;
     }
 
+    public function header($key = null)
+    {
+        $headers = $this->headers();
+        return array_key_exists($key, $headers) ? $headers[$key] : null;
+    }
+
     /**
      * @return array
      */
@@ -82,7 +88,7 @@ class Request
         $headers = [];
         foreach ($_SERVER as $name => $value) {
             if (substr($name, 0, 5) == 'HTTP_') {
-                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                $headers[str_replace(' ', '-', strtolower(str_replace('_', ' ', substr($name, 5))))] = $value;
             }
         }
         return $headers;
@@ -102,7 +108,7 @@ class Request
     /**
      * @return array
      */
-    protected function get_full_request_data(): array {
+    public function get_full_request_data(): array {
         return [
             "query" => $this->query(),
             "body" => $this->body(),
