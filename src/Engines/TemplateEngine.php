@@ -11,7 +11,7 @@ class TemplateEngine
         extract($data);
         ob_start();
         $page = file_get_contents($template);
-        $formatted_page =  TemplateEngine::replace_template_variables($page, $raw_data);
+        $formatted_page = self::replace_template_variables($page, $raw_data);
         echo $formatted_page;
         ob_get_contents();
     }
@@ -19,32 +19,36 @@ class TemplateEngine
     public static function replace_template_variables(string $template, array $data = [])
     {
         $data_regex = "/@data\((.*?)\)/m";
-        $header_regex = "/@header\((.*?)\)/m";
-        $query_regex = "/@query\((.*?)\)/m";
-        $body_regex = "/@body\((.*?)\)/m";
-        $template = preg_replace_callback($data_regex, function ($matches) use ($data) {
-            $key = $matches[1];
-            $matches_array = explode(".", $key);
-            $value = $data["data"];
-            foreach ($matches_array as $key) {
-                $value = $value[$key];
-            }
-            return $value;
+        $available_fields = array_keys($data);
 
-
-        }, $template);
-
-        $template = preg_replace_callback($header_regex, function ($matches) use ($data) {
-            $key = strtolower($matches[1]);
-            $matches_array = explode(".", $key);
-            $value = $data["headers"];
-            foreach ($matches_array as $key) {
-                $value = $value[$key];
-            }
-            return $value;
-        }, $template);
+        foreach ($available_fields as $field) {
+            $field_regex = "/@{$field}\((.*?)\)/m";
+            $template = self::extract_and_replace_variables_per_directive($field_regex, $data, $template, $field);
+        }
 
         return $template;
+    }
+
+    /**
+     * @param string $regex
+     * @param array $data
+     * @param string $template
+     * @param string $field_name
+     * @return array|string|string[]|null
+     */
+    public static function extract_and_replace_variables_per_directive(string $regex, array $data, string $template, string $field_name)
+    {
+        return preg_replace_callback($regex, function ($matches) use ($field_name, $data) {
+            $key = $matches[1];
+            $matches_array = explode(".", $key);
+            $value = $data[$field_name];
+            foreach ($matches_array as $key) {
+                $value = $value[$key];
+            }
+            return $value;
+
+
+        }, $template);
     }
 
 }

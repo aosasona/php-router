@@ -6,6 +6,7 @@
 - Switched to PHP 7.4 for type declaration compatibility
 - Added PHPDoc for contributors and users
 - Added support for JSON input via file_get_contents()
+- Added support for route chaining via the `->route()` method
 - Refactored and improved code - SnakeCase is used for uniformity and improved readability
 - Made get_route method public for unit testing purposes
 - `render` has now replaced the Response class method `use` with support for data and template variables
