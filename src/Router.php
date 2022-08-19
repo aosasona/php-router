@@ -199,7 +199,7 @@ class Router
      * @param $method
      * @return mixed|null
      */
-    public function get_route($_, $method)
+    protected function get_route($_, $method)
     {
         foreach ($this->routes as $route) {
             if ($route["method"] === $method && $this->compare_current_path($route["path"])) {
@@ -241,6 +241,7 @@ class Router
             // check if the content type is allowed
             if (!in_array($this->content_type, $this->allowed_content_types) && $this->content_type !== "text/html") {
                 $this->send_error_page(405);
+                exit;
             }
 
 
@@ -248,7 +249,7 @@ class Router
 
             $params = count($route["params"] ?? []) > 0 ? $this->get_params_values($route) : [];
             $response = new Response($this->source_path);
-            $request = new Request([$_GET, $_POST], $params, $this->request_path);
+            $request = new Request([$_GET, $_POST], $params, $this->request_path, $this->source_path);
 
             if ($route !== null) {
                 if(count($route["middleware"]) > 0) {

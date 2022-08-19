@@ -1,6 +1,6 @@
 # PHP Router
 
-PHP-Router is a modern, fast, and adaptable composer package that provides express-style routing in PHP.
+PHP-Router is a modern, fast, and adaptable composer package that provides express-style routing in PHP without a framework.
 
 This website is powered by this package -> [View site](https://phprouter.herokuapp.com/)
 
@@ -62,13 +62,20 @@ $router->get("/", function($req, $res) {
                ->status(200);
 });
 
+$router->get('/render', function ($req, $res) {
+    return $res->use_engine()->render("second.html", 
+                                        $req,
+                                        ["name" => "John Doe"] //optional data
+                                      );
+});
+
 $router->post("/", function($req, $res) {
    return $res->send([
        "message" => "Hello World"
    ]);
 });
 
-$router->delete("/", [new NoteController(), "destroy"]);
+$router->delete("/", [new NoteController(), "destroy"]); // using a class
 
 $router->route("/chained")
     ->get(function ($req, $res) {
@@ -103,7 +110,7 @@ The `$req` object contains the request data, it also has helper methods for acce
 - `append($key, $value)` - Append data to the request object.
 - `data` - The data array for the request object (useful for passing data to the middleware and callback functions).
 
-> More methods will be added in the future.
+> Note: The `$req` object is passed to all middleware and callback functions. To stop a middleware from moving on to the next one, use the `exit` or `die` function.
 
 ## The `$res` object
 
@@ -115,6 +122,7 @@ The `$res` object is used to control the response and holds data related to resp
 - `render($file)` - Render a view with the built-in mini template engine, you can also pass in your own data.
 - `redirect($path)` - Redirect to another path - eg. `/example/login`
 - `status($status)` - Set the status code (defaults to 200, optional)
+- `use_engine()` - Enable and use the built-in mini template engine for rendering views.
 
 
 > More methods will also be added in the future.
@@ -128,11 +136,34 @@ In views, you are provided with the following variables by default:
 - `params` - The request params values.
 - `headers` - The request headers.
 - `data` - User-defined data eg. current user from JWT
+- `root_dir` - The current request path.
+- 
 > Note: headers are made case-insensitive while accessing them in views.
+This package also comes with a templating engine that is turned off by default, you can enable or disable it by passing a boolean value to the `render` method. This templating engine is still experimental and does not support a lot of features yet. Check [this](/examples/views/middleware_view.html) file for an example of how to use it.
+
+You can use any of these variables in a PHP view file by using $query[\'field_name'\], $data[\'field_name'\] etc or in a template file (most likely html) by using the directives like @query('field_name'), @body().
+
+### Components and Raw Code
+You can execute some PHP codes in views by using the `@php ... @endphp` directives. This is quite limited and useful for codes that don't echo anything like the `session_start()` function as all the output is at the top of the view file.
+
+
+```html
+@php
+    session_start();
+@endphp
+```
+
+You can also use the `@component` directive to include a component file.
+
+```html
+@component('components.html')
+```
+
+For more examples, check out the [examples](/examples) directory.
 
 ## Error Pages
 
-You can easily add a custom 404 and 500 page by creating a file in the `/views` directory (or wherever your base path is; where your controllers or views are) called `404.php` and `500.php`
+You can easily add a custom 404, 405 or 500 page by creating a file in the `/views` directory (or wherever your base path is; where your controllers or views are) called `404.php`, `405.php` or `500.php`
 
 ## Contribute
 

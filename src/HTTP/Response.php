@@ -9,11 +9,13 @@ class Response
 
     public string $source_path;
     public int $status_code;
+    public bool $use_template_engine;
 
     public function __construct($source_path = "")
     {
         $this->source_path = $source_path;
         $this->status_code = 200;
+        $this->use_template_engine = false;
         header_remove("X-Powered-By");
     }
 
@@ -87,17 +89,23 @@ class Response
         return $this;
     }
 
+    public function use_engine(): Response
+    {
+        $this->use_template_engine = true;
+        return $this;
+    }
+
     /**
      * @param string $file
-     * @param Request $request
+     * @param Request|null $request
      * @param array|null $extra_data
      * @return self
      */
-    public function render(string $file, Request $request,?array $extra_data = []): Response
+    public function render(string $file, ?Request $request = null,?array $extra_data = []): Response
     {
         if ($this->check_file_exists($file)) {
-            $data = array_merge($request->get_full_request_data(), $extra_data);
-            TemplateEngine::render($this->get_file_path($file), $data);
+            $data = array_merge($request->get_full_request_data(), $extra_data, ["root_dir" => $request->get_root_dir()]);
+            TemplateEngine::render($this->get_file_path($file), $data, $this->use_template_engine);
         } else {
             $this->send_error_page();
         }
@@ -121,7 +129,7 @@ class Response
      * @param $file_path
      * @return $this
      */
-    public function send_file($file_path)
+    public function send_file($file_path): Response
     {
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($file_path) . '"');

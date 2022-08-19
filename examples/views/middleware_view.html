@@ -1,4 +1,4 @@
-<html lang="">
+<html lang="en">
 <meta charset="utf-8">
 <style>
     html, body {
@@ -9,6 +9,11 @@
 <body>
 <h1>Hello World</h1>
 <h3>Rendered page</h3>
+
+@php
+echo "Hello from PHP";
+@endphp
+
 <ul>
     <li>
         Host: @headers(host)
@@ -19,7 +24,14 @@
     <li>
         Nested Firstname (FM): <b>@data(more.first_name)</b>
     </li>
+    <li>
+        Query (Name): <b>@query(name)</b>
+    </li>
 </ul>
+
+@component(component.php)
+
 <p>FM is short for &quot;From Middleware&quot;</p>
+
 </body>
 </html>

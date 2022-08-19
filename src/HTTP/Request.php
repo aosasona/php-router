@@ -10,14 +10,16 @@ class Request
     public string $request_path;
     private string $content_type;
     public ?array $data;
+    public $source_dir;
 
-    public function __construct($request_data, $params = [], $path = "")
+    public function __construct($request_data, $params = [], $path = "", $source_dir = "")
     {
         $this->request_data = $request_data;
         $this->request_params = $params;
         $this->request_path = $path;
         $this->content_type = $_SERVER['HTTP_CONTENT_TYPE'] ?? "text/html";
         $this->data = [];
+        $this->source_dir = $source_dir;
     }
 
     /**
@@ -114,7 +116,15 @@ class Request
             "body" => $this->body(),
             "params" => $this->request_params,
             "headers" => $this->headers(),
-            "data" => $this->data
+            "data" => $this->data,
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function get_root_dir(): string
+    {
+        return $this->source_dir;
     }
 }
