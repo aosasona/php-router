@@ -159,7 +159,7 @@ You can also use the `@component` directive to include a component file.
 @component('component.html')
 ```
 
-For more examples, check out the [examples](/examples) directory. To start the server, run `composer run start:dev`, the base URL is `http://localhost:20000/demo`. Here are all the available endpoints:
+For more examples, check out the [examples](/examples) directory. If you have forked and/or cloned this repo; to start the test server, run `composer run start:dev`, the base URL is `http://localhost:20000/demo`. Here are all the available endpoints:
 - [GET] `/`
 - [GET] `/render`
 - [GET] `/render/middleware`
