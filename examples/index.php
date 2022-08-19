@@ -89,9 +89,6 @@ $router->get('/middleware', function (Request $req, Response $res) {
     $req->append("name", "John");// Appending data to the request object
 }, function (Request $req, Response $res) {
     $req->append("age", 16); // Appending more data to the request object
-    $res->send("From middleware 2 <br/> 
-            Name from previous middleware: {$req->data["name"]} 
-            </br> ------ </br>");
 }, function (Request $req, Response $res) {
     return $res->send("FROM FINAL CALLBACK </br> 
                 Name: {$req->data["name"]}</br> 

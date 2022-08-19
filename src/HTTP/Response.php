@@ -9,6 +9,7 @@ class Response
 
     public string $source_path;
     public int $status_code;
+    public bool $is_sent;
     public bool $use_template_engine;
 
     public function __construct($source_path = "")
@@ -16,6 +17,7 @@ class Response
         $this->source_path = $source_path;
         $this->status_code = 200;
         $this->use_template_engine = false;
+        $this->is_sent = false;
         header_remove("X-Powered-By");
     }
 
@@ -49,6 +51,7 @@ class Response
         header('Content-Type: application/json');
         http_response_code($status);
         echo json_encode(["code" => $status, "error" => $message]);
+        $this->is_sent = true;
         return $this;
     }
 
@@ -63,6 +66,7 @@ class Response
         header("X-Content-Type-Options: nosniff");
         http_response_code($this->status_code);
         echo is_array($content) ? json_encode($content) : $content;
+        $this->is_sent = true;
         return $this;
     }
 
@@ -75,6 +79,7 @@ class Response
         header('Content-Type: application/json');
         http_response_code($this->status_code);
         echo json_encode($data);
+        $this->is_sent = true;
         return $this;
     }
 
@@ -109,6 +114,7 @@ class Response
         } else {
             $this->send_error_page();
         }
+        $this->is_sent = true;
         return $this;
     }
 
@@ -135,6 +141,7 @@ class Response
         header('Content-Disposition: attachment; filename="' . basename($file_path) . '"');
         header('Content-Length: ' . filesize($file_path));
         readfile($file_path);
+        $this->is_sent = true;
         return $this;
     }
 

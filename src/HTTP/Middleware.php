@@ -34,6 +34,10 @@ class Middleware
         $response = $this->response;
         foreach ($middleware_array as $middleware) {
             $middleware($request, $response);
+
+            if ($response->is_sent) {
+                exit;
+            }
         }
     }
 }
