@@ -155,24 +155,5 @@ $router->route("/chained")
         return $res->send("DELETE - Chained!")->status(200);
     });
 
-/**
- * @desc Using chained routes
- * @route /chained
- */
-$router->route("/another-chain")
-    ->get(function (Request $req, Response $res) {
-        return $res->send("GET - Another Chain!")->status(200);
-    })
-    ->post(function (Request $req, Response $res) {
-        return $res->send("POST - Another Chain!")->status(200);
-    })
-    ->put(function (Request $req, Response $res) {
-        return $res->send("PUT - Another Chain!")->status(200);
-    })
-    ->delete(function (Request $req, Response $res) {
-        return $res->send("DELETE - Another Chain!")->status(200);
-    });
-
-
 // Start the router
 $router->serve();
