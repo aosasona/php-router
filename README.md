@@ -18,7 +18,6 @@ This is very important to get the router working correctly.
 ```
 Options +FollowSymLinks
 RewriteEngine On
-RewriteRule .* - [E=HTTP_CONTENT_TYPE:%{HTTP:Content-Type},L]
 RewriteCond %{REQUEST_URI} !=/index.php
 RewriteCond %{REQUEST_URI} !.*\.png$ [NC]
 RewriteCond %{REQUEST_URI} !.*\.jpg$ [NC]
@@ -26,6 +25,7 @@ RewriteCond %{REQUEST_URI} !.*\.css$ [NC]
 RewriteCond %{REQUEST_URI} !.*\.gif$ [NC]
 RewriteCond %{REQUEST_URI} !.*\.js$ [NC]
 RewriteRule .* /index.php
+RewriteRule .* - [E=HTTP_CONTENT_TYPE:%{HTTP:Content-Type},L]
 ```
 
 You could also download these files and use them directly.
