@@ -55,18 +55,17 @@ require(__DIR__ . '/vendor/autoload.php');
 
 use \Trulyao\PhpRouter\Router as Router;
 
-# Create a new instance
 $router = new Router(__DIR__."/views", "demo");
 
 $router->get("/", function($req, $res) {
     return $res->send("<h1>Hello World</h1>")
-               ->status(200); // sends html response, status is optional
+               ->status(200);
 });
 
 $router->post("/", function($req, $res) {
-   return $res->status(200)->send([
+   return $res->send([
        "message" => "Hello World"
-   ]); // sends json response automatically
+   ]);
 });
 
 $router->delete("/", [new NoteController(), "destroy"]);
@@ -77,12 +76,6 @@ $router->route("/chained")
     })
     ->post(function ($req, $res) {
     return $res->send("POST - Chained!")->status(200);
-    })
-    ->put(function ($req, $res) {
-    return $res->send("PUT - Chained!")->status(200);
-    })
-    ->delete(function ($req, $res) {
-    return $res->send("DELETE - Chained!")->status(200);
     });
 
 # Start the router - very important!
@@ -134,8 +127,8 @@ In views, you are provided with the following variables by default:
 - `body` - The request body values.
 - `params` - The request params values.
 - `headers` - The request headers.
-- `data` - User defined data.
-> Note: headers are made case insensitive while accessing them in views.
+- `data` - User-defined data eg. current user from JWT
+> Note: headers are made case-insensitive while accessing them in views.
 
 ## Error Pages
 
