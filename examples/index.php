@@ -33,7 +33,7 @@ $router->get('/render', function (Request $req, Response $res) {
  * @route /render/middleware
  */
 $router->get('/render/middleware', function ($req) {
-    $req->append('name', 'Ayodeji');
+    $req->append('name', 'Bob');
     $req->append('more', ["first_name" => "Joe", "last_name" => "Zhang"]);
     $req->append('hobbies', ["watching youtube", "sleeping", "coding"]);
 }, function (Request $req, Response $res) {
@@ -97,25 +97,6 @@ $router->get('/middleware', function (Request $req, Response $res) {
 
 
 /**
- * @desc Using chained routes
- * @route /chained
- */
-$router->route("/chained")
-    ->get(function (Request $req, Response $res) {
-    return $res->send("GET - Chained!")->status(200);
-    })
-    ->post(function (Request $req, Response $res) {
-    return $res->send("POST - Chained!")->status(200);
-    })
-    ->put(function (Request $req, Response $res) {
-    return $res->send("PUT - Chained!")->status(200);
-    })
-    ->delete(function (Request $req, Response $res) {
-    return $res->send("DELETE - Chained!")->status(200);
-    });
-
-
-/**
  * @desc [GET] Redirecting to another route
  * @route /redirect
  */
@@ -136,7 +117,7 @@ $router->post('/', function (Request $req, Response $res) {
  * @route /:id
  */
 $router->post('/:id', function (Request $req, Response $res) {
-    return $res->send(["id" => $req->params("id")]);
+    return $res->send(["method" => "POST", "id" => $req->params("id")]);
 });
 
 /**
@@ -144,7 +125,7 @@ $router->post('/:id', function (Request $req, Response $res) {
  * @route /:id
  */
 $router->put('/:id', function (Request $req, Response $res) {
-    return $res->send(["method" => "PUT"]);
+    return $res->send(["method" => "PUT", "id" => $req->params("id")]);
 });
 
 /**
@@ -152,8 +133,46 @@ $router->put('/:id', function (Request $req, Response $res) {
  * @route /:id
  */
 $router->delete('/:id', function (Request $req, Response $res) {
-    return $res->send(["method" => "DELETE"]);
+    return $res->send(["method" => "DELETE", "id" => $req->params("id")]);
 });
+
+
+/**
+ * @desc Using chained routes
+ * @route /chained
+ */
+$router->route("/chained")
+    ->get(function (Request $req, Response $res) {
+        return $res->send("GET - Chained!")->status(200);
+    })
+    ->post(function (Request $req, Response $res) {
+        return $res->send("POST - Chained!")->status(200);
+    })
+    ->put(function (Request $req, Response $res) {
+        return $res->send("PUT - Chained!")->status(200);
+    })
+    ->delete(function (Request $req, Response $res) {
+        return $res->send("DELETE - Chained!")->status(200);
+    });
+
+/**
+ * @desc Using chained routes
+ * @route /chained
+ */
+$router->route("/another-chain")
+    ->get(function (Request $req, Response $res) {
+        return $res->send("GET - Another Chain!")->status(200);
+    })
+    ->post(function (Request $req, Response $res) {
+        return $res->send("POST - Another Chain!")->status(200);
+    })
+    ->put(function (Request $req, Response $res) {
+        return $res->send("PUT - Another Chain!")->status(200);
+    })
+    ->delete(function (Request $req, Response $res) {
+        return $res->send("DELETE - Another Chain!")->status(200);
+    });
+
 
 // Start the router
 $router->serve();

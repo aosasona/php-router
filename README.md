@@ -51,8 +51,6 @@ You could also download these files and use them directly.
 ```php
 <?php
 
-require(__DIR__ . '/vendor/autoload.php');
-
 use \Trulyao\PhpRouter\Router as Router;
 
 $router = new Router(__DIR__."/views", "demo");
@@ -63,10 +61,7 @@ $router->get("/", function($req, $res) {
 });
 
 $router->get('/render', function ($req, $res) {
-    return $res->use_engine()->render("second.html", 
-                                        $req,
-                                        ["name" => "John Doe"] //optional data
-                                      );
+    return $res->render("second.html", $req);
 });
 
 $router->post("/", function($req, $res) {
@@ -75,14 +70,15 @@ $router->post("/", function($req, $res) {
    ]);
 });
 
-$router->delete("/", [new NoteController(), "destroy"]); // using a class
+# using a class based controller
+$router->delete("/", [new NoteController(), "destroy"]); 
 
 $router->route("/chained")
     ->get(function ($req, $res) {
-    return $res->send("GET - Chained!")->status(200);
+    return $res->send("GET - Chained!");
     })
     ->post(function ($req, $res) {
-    return $res->send("POST - Chained!")->status(200);
+    return $res->send("POST - Chained!");
     });
 
 # Start the router - very important!
@@ -110,7 +106,7 @@ The `$req` object contains the request data, it also has helper methods for acce
 - `append($key, $value)` - Append data to the request object.
 - `data` - The data array for the request object (useful for passing data to the middleware and callback functions).
 
-> Note: The `$req` object is passed to all middleware and callback functions. To stop a middleware from moving on to the next one, use the `exit` or `die` function.
+> Note: The `$req` object is passed to all middleware and callback functions. If you use any of the response methods like `send()`, the middleware will not move on to the next one.
 
 ## The `$res` object
 
@@ -128,6 +124,10 @@ The `$res` object is used to control the response and holds data related to resp
 > More methods will also be added in the future.
 
 You can access these any functions outside your index or main file too by using the namespace `Trulyao\PhpRouter\HTTP`. Also, you are not constrained to any particular coding style or variable naming convention either.
+
+## Error Pages
+
+You can easily add a custom 404, 405 or 500 page by creating a file in the `/views` directory (or wherever your base path is; where your controllers or views are) called `404.php`, `405.php` or `500.php`
 
 ## Views & Templates
 In views, you are provided with the following variables by default:
@@ -156,14 +156,23 @@ You can execute some PHP codes in views by using the `@php ... @endphp` directiv
 You can also use the `@component` directive to include a component file.
 
 ```html
-@component('components.html')
+@component('component.html')
 ```
 
-For more examples, check out the [examples](/examples) directory.
-
-## Error Pages
-
-You can easily add a custom 404, 405 or 500 page by creating a file in the `/views` directory (or wherever your base path is; where your controllers or views are) called `404.php`, `405.php` or `500.php`
+For more examples, check out the [examples](/examples) directory. To start the server, run `composer run start:dev`, the base URL is `http://localhost:20000/demo`. Here are all the available endpoints:
+- [GET] `/`
+- [GET] `/render`
+- [GET] `/render/middleware`
+- [GET] `/json`
+- [GET] `/dynamic/:id`
+- [GET] `/dynamic/:id/nested`
+- [GET] `/dynamic/:id/:name`
+- [GET] `/middleware`
+- [GET] `/redirect`
+- [POST] `/:id`
+- [PUT] `/:id`
+- [DELETE] `/:id`
+- [GET | POST | PUT | DELETE] `/chained`
 
 ## Contribute
 
@@ -173,3 +182,5 @@ You can easily add a custom 404, 405 or 500 page by creating a file in the `/vie
 - For more information, contact me [here](https://twitter.com/trulyao)
 
 > This documentation will be updated as soon as new features and methods are added to the package.
+> 
+> Warning: PHP, like a lot of other languages, runs from top to bottom, to avoid conflicts, put your chained routes at the bottom of the file; it is still fairly unstable and may override your dynamic routes eg. putting `/chained` which is a chained route before `/:id` for a GET request will only direct you to the `/chained` route because it technically matches the latter.
