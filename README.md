@@ -59,7 +59,8 @@ use \Trulyao\PhpRouter\Router as Router;
 $router = new Router(__DIR__."/views", "demo");
 
 $router->get("/", function($req, $res) {
-    return $res->status(200)->send("<h1>Hello World</h1>"); // sends html response
+    return $res->send("<h1>Hello World</h1>")
+               ->status(200); // sends html response, status is optional
 });
 
 $router->post("/", function($req, $res) {
@@ -70,13 +71,27 @@ $router->post("/", function($req, $res) {
 
 $router->delete("/", [new NoteController(), "destroy"]);
 
+$router->route("/chained")
+    ->get(function ($req, $res) {
+    return $res->send("GET - Chained!")->status(200);
+    })
+    ->post(function ($req, $res) {
+    return $res->send("POST - Chained!")->status(200);
+    })
+    ->put(function ($req, $res) {
+    return $res->send("PUT - Chained!")->status(200);
+    })
+    ->delete(function ($req, $res) {
+    return $res->send("DELETE - Chained!")->status(200);
+    });
+
 # Start the router - very important!
 $router->serve();
 
 ?>
 ```
 
-`/views` - The directory where your views/controllers are located.
+`/views` - The directory where your views/controllers/source files are located.
 
 `/demo` - This is the base URL for your application eg. `api` for `/api/*` or `v1` for `/v1/*`.
 
@@ -103,7 +118,8 @@ The `$res` object is used to control the response and holds data related to resp
 - `render($file)` - Render a view with the built-in mini template engine, you can also pass in your own data.
 - `redirect($path)` - Redirect to another path - eg. `/example/login`
 - `status($status)` - Set the status code (defaults to 200, optional)
-- 
+- `append($key, $value)` - Append data to the request object.
+- `data` - The data array for the request object (useful for passing data to the middleware and callback functions).
 
 > More methods will also be added in the future.
 

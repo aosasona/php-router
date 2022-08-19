@@ -83,7 +83,13 @@ $router->route("/chained")
     return $res->send("GET - Chained!")->status(200);
     })
     ->post(function ($req, $res) {
-    return $res->send("GET - Chained!")->status(200);
+    return $res->send("POST - Chained!")->status(200);
+    })
+    ->put(function ($req, $res) {
+    return $res->send("PUT - Chained!")->status(200);
+    })
+    ->delete(function ($req, $res) {
+    return $res->send("DELETE - Chained!")->status(200);
     });
 
 
