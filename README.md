@@ -10,6 +10,12 @@ This website is powered by this package -> [View site](https://phprouter.herokua
 composer require trulyao/php-router
 ```
 
+Create a new dockerized PHP project (contains MySQL, Apache2, PHPMyAdmin) that uses this package by running this Composer command:
+
+```bash
+composer create-project trulyao/php-starter hello-world
+```
+
 ### Update .htaccess file
 
 This is very important to get the router working correctly.
