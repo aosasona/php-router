@@ -109,7 +109,7 @@ class Response
     public function render(string $file, ?Request $request = null,?array $extra_data = []): Response
     {
         if ($this->check_file_exists($file)) {
-            $request_data = isset($request) ? $request->get_full_request_data() : null;
+            $request_data = isset($request) ? $request->get_full_request_data() : [];
             $root_dir = isset($request) ? $request->get_root_dir() : __DIR__;
             $data = array_merge($request_data, $extra_data, ["root_dir" => $root_dir]);
             TemplateEngine::render($this->get_file_path($file), $data, $this->use_template_engine);
