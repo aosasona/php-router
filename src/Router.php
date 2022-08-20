@@ -29,7 +29,7 @@ class Router
         $this->extract_params_from_request_path();
         $this->routes = [];
         $this->route_cache = null;
-        $this->content_type = $_SERVER['HTTP_CONTENT_TYPE'] ? @explode(";", $_SERVER['HTTP_CONTENT_TYPE'])[0] ?? null : null;
+        $this->content_type = isset($_SERVER['HTTP_CONTENT_TYPE']) ? @explode(";", $_SERVER['HTTP_CONTENT_TYPE'])[0] ?? null : null;
         $this->allowed_content_types = [
             "application/json",
             "text/html",
