@@ -37,7 +37,6 @@ RewriteRule .* - [E=HTTP_CONTENT_TYPE:%{HTTP:Content-Type},L]
 RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 ```
 
-You could also download these files and use them directly.
 
 ## Features
 
