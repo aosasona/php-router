@@ -29,7 +29,7 @@ class Router
         $this->extract_params_from_request_path();
         $this->routes = [];
         $this->route_cache = null;
-        $this->content_type = @explode(";", $_SERVER['HTTP_CONTENT_TYPE'])[0] ?? "text/html";
+        $this->content_type = $_SERVER['HTTP_CONTENT_TYPE'] ? @explode(";", $_SERVER['HTTP_CONTENT_TYPE'])[0] ?? null : null;
         $this->allowed_content_types = [
             "application/json",
             "text/html",
@@ -238,12 +238,10 @@ class Router
     {
         try {
 
-            // check if the content type is allowed
-            if (!in_array($this->content_type, $this->allowed_content_types)) {
+            if ($this->content_type && !in_array($this->content_type, $this->allowed_content_types) && $this->method !== "GET") {
                 $this->send_error_page(405);
                 exit;
             }
-
 
             $route = $this->get_route($this->request_path, strtoupper($method));
 
@@ -252,7 +250,7 @@ class Router
             $request = new Request([$_GET, $_POST], $params, $this->request_path, $this->source_path);
 
             if ($route !== null) {
-                if(count($route["middleware"]) > 0) {
+                if (count($route["middleware"]) > 0) {
                     $middleware = new Middleware($route["middleware"], $request, $response);
                     $middleware->handle();
                 }
