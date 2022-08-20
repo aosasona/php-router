@@ -14,12 +14,12 @@ class Request
 
     public function __construct($request_data, $params = [], $path = "", $source_dir = "")
     {
-        $this->request_data = $request_data;
-        $this->request_params = $params;
-        $this->request_path = $path;
+        $this->request_data = $request_data ?? [];
+        $this->request_params = $params ?? [];
+        $this->request_path = $path ?? "";
         $this->content_type = $_SERVER['HTTP_CONTENT_TYPE'] ?? "text/html";
         $this->data = [];
-        $this->source_dir = $source_dir;
+        $this->source_dir = $source_dir ?? "";
     }
 
     /**
@@ -33,6 +33,8 @@ class Request
         $get = array_map(function ($value) {
             return htmlspecialchars_decode($value);
         }, $get);
+
+        $get = $get ?? [];
 
         return array_key_exists($key, $get) ? $get[$key] : ($key !== null ? null : (count($get) > 0 ? $get : []));
     }
@@ -53,6 +55,8 @@ class Request
             }, $post);
             $body = $post;
         }
+
+        $body = $body ?? [];
 
         return array_key_exists($key, $body) ? $body[$key] : ($key !== null ? null : (count($body) > 0 ? $body : []));
     }
@@ -78,7 +82,7 @@ class Request
 
     public function header($key = null)
     {
-        $headers = $this->headers();
+        $headers = $this->headers() ?? [];
         return array_key_exists($key, $headers) ? $headers[$key] : null;
     }
 
@@ -125,6 +129,6 @@ class Request
      */
     public function get_root_dir(): string
     {
-        return $this->source_dir;
+        return $this->source_dir ?? "";
     }
 }
