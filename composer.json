@@ -1,7 +1,7 @@
 {
   "name": "trulyao/php-router",
   "description": "A simple express-style router for PHP",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "type": "library",
   "keywords": [
     "router",
