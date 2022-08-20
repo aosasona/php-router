@@ -29,7 +29,7 @@ class Router
         $this->extract_params_from_request_path();
         $this->routes = [];
         $this->route_cache = null;
-        $this->content_type = $_SERVER['HTTP_CONTENT_TYPE'] ?? "text/html";
+        $this->content_type = @explode(";", $_SERVER['HTTP_CONTENT_TYPE'])[0] ?? "text/html";
         $this->allowed_content_types = [
             "application/json",
             "text/html",
@@ -239,7 +239,7 @@ class Router
         try {
 
             // check if the content type is allowed
-            if (!in_array($this->content_type, $this->allowed_content_types) && $this->content_type !== "text/html") {
+            if (!in_array($this->content_type, $this->allowed_content_types)) {
                 $this->send_error_page(405);
                 exit;
             }
