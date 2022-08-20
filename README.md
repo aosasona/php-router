@@ -13,11 +13,13 @@ composer require trulyao/php-router
 ### Update .htaccess file
 
 This is very important to get the router working correctly.
+> Warning: Depending on your Apache configuration, some headers will not be allowed to come through to your application, this has nothing to do with this package, you just need to enable them in your Apache configuration.
 
 
 ```
 Options +FollowSymLinks
 RewriteEngine On
+RewriteCond %{HTTP:Authorization} ^(.*)
 RewriteCond %{REQUEST_URI} !=/index.php
 RewriteCond %{REQUEST_URI} !.*\.png$ [NC]
 RewriteCond %{REQUEST_URI} !.*\.jpg$ [NC]
@@ -26,6 +28,7 @@ RewriteCond %{REQUEST_URI} !.*\.gif$ [NC]
 RewriteCond %{REQUEST_URI} !.*\.js$ [NC]
 RewriteRule .* /index.php
 RewriteRule .* - [E=HTTP_CONTENT_TYPE:%{HTTP:Content-Type},L]
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 ```
 
 You could also download these files and use them directly.
