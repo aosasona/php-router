@@ -51,12 +51,18 @@ class Request
         } else {
             @[$get, $post] = $this->request_data;
             $post = array_map(function ($value) {
-                return htmlspecialchars($value);
+                return $value;
             }, $post);
             $body = $post;
         }
 
         $body = $body ?? [];
+        
+        if(count($body) > 0) {
+            array_map(function ($value) {
+                return htmlspecialchars(trim($value));
+            }, $body);
+        }
 
         return array_key_exists($key, $body) ? $body[$key] : ($key !== null ? null : (count($body) > 0 ? $body : []));
     }
