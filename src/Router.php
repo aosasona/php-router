@@ -342,12 +342,18 @@ class Router
     /**
      * @return void
      */
-    protected function strip_extra_url_data(): void
+    protected function strip_extra_url_data()
     {
-        $this->request_path = ltrim(rtrim($_SERVER['REQUEST_URI'] ?? "", "/"), "/");
+        $this->request_path = $_SERVER['REQUEST_URI'] ?? "";
+        $pos = strpos($this->request_path, "?");
 
-        if ($pos = strpos($this->request_path, "?")) {
-            $this->request_path = substr($this->request_path, 0, $pos);
+        if (!$pos || strlen) {
+            $this->request_path =  ltrim(rtrim($_SERVER['REQUEST_URI'] ?? "", "/"), "/");
+            return;
         }
+        
+        $sub = substr($this->request_path, 0, $pos);
+        $this->request_path = $sub;
+        return;
     }
 }
