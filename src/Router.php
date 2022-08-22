@@ -32,6 +32,7 @@ class Router
         $this->content_type = isset($_SERVER['HTTP_CONTENT_TYPE']) ? @explode(";", $_SERVER['HTTP_CONTENT_TYPE'])[0] ?? null : null;
         $this->allowed_content_types = [
             "application/json",
+            "multipart/form-data",
             "text/html",
         ];
     }
