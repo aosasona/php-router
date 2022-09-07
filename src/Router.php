@@ -32,6 +32,7 @@ class Router
         $this->content_type = isset($_SERVER['HTTP_CONTENT_TYPE']) ? @explode(";", $_SERVER['HTTP_CONTENT_TYPE'])[0] ?? null : null;
         $this->allowed_content_types = [
             "application/json",
+            "application/x-www-form-urlencoded",
             "multipart/form-data",
             "text/html",
         ];
@@ -348,13 +349,16 @@ class Router
         $this->request_path = $_SERVER['REQUEST_URI'] ?? "";
         $pos = strpos($this->request_path, "?");
 
-        if (!$pos || strlen) {
-            $this->request_path =  ltrim(rtrim($_SERVER['REQUEST_URI'] ?? "", "/"), "/");
+        if (substr($this->request_path, -1) === "#") {
+            $this->request_path = substr($this->request_path, 0, -1);
+        }
+
+        if (!$pos || strlen($this->request_path) === 0) {
+            $this->request_path = ltrim(rtrim($this->request_path ?? "", "/"), "/");
             return;
         }
-        
+
         $sub = substr($this->request_path, 0, $pos);
         $this->request_path = $sub;
-        return;
     }
 }

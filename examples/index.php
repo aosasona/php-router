@@ -6,7 +6,7 @@ use Trulyao\PhpRouter\HTTP\Request;
 use Trulyao\PhpRouter\HTTP\Response;
 use Trulyao\PhpRouter\Router as Router;
 
-$router = new Router(__DIR__ . "/views", "demo");
+$router = new Router(__DIR__ . "/views", "");
 
 
 /**
@@ -38,7 +38,7 @@ $router->get('/render/middleware', function ($req) {
     $req->append('hobbies', ["watching youtube", "sleeping", "coding"]);
 }, function (Request $req, Response $res) {
     return $res->use_engine()
-                ->render("middleware_view.html", $req);
+        ->render("middleware_view.html", $req);
 });
 
 /**
