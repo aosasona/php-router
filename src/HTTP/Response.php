@@ -9,11 +9,15 @@ class Response
 
     public string $source_path;
     public int $status_code;
+    public bool $is_sent;
+    public bool $use_template_engine;
 
     public function __construct($source_path = "")
     {
         $this->source_path = $source_path;
         $this->status_code = 200;
+        $this->use_template_engine = false;
+        $this->is_sent = false;
         header_remove("X-Powered-By");
     }
 
@@ -47,6 +51,7 @@ class Response
         header('Content-Type: application/json');
         http_response_code($status);
         echo json_encode(["code" => $status, "error" => $message]);
+        $this->is_sent = true;
         return $this;
     }
 
@@ -61,6 +66,7 @@ class Response
         header("X-Content-Type-Options: nosniff");
         http_response_code($this->status_code);
         echo is_array($content) ? json_encode($content) : $content;
+        $this->is_sent = true;
         return $this;
     }
 
@@ -73,6 +79,7 @@ class Response
         header('Content-Type: application/json');
         http_response_code($this->status_code);
         echo json_encode($data);
+        $this->is_sent = true;
         return $this;
     }
 
@@ -87,20 +94,29 @@ class Response
         return $this;
     }
 
+    public function use_engine(): Response
+    {
+        $this->use_template_engine = true;
+        return $this;
+    }
+
     /**
      * @param string $file
-     * @param Request $request
+     * @param Request|null $request
      * @param array|null $extra_data
      * @return self
      */
-    public function render(string $file, Request $request,?array $extra_data = []): Response
+    public function render(string $file, ?Request $request = null,?array $extra_data = []): Response
     {
         if ($this->check_file_exists($file)) {
-            $data = array_merge($request->get_full_request_data(), $extra_data);
-            TemplateEngine::render($this->get_file_path($file), $data);
+            $request_data = isset($request) ? $request->get_full_request_data() : [];
+            $root_dir = isset($request) ? $request->get_root_dir() : __DIR__;
+            $data = array_merge($request_data, $extra_data, ["root_dir" => $root_dir]);
+            TemplateEngine::render($this->get_file_path($file), $data, $this->use_template_engine);
         } else {
             $this->send_error_page();
         }
+        $this->is_sent = true;
         return $this;
     }
 
@@ -121,12 +137,13 @@ class Response
      * @param $file_path
      * @return $this
      */
-    public function send_file($file_path)
+    public function send_file($file_path): Response
     {
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($file_path) . '"');
         header('Content-Length: ' . filesize($file_path));
         readfile($file_path);
+        $this->is_sent = true;
         return $this;
     }
 

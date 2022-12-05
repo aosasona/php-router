@@ -4,6 +4,6 @@
 <body>
 <h1>Hello World</h1>
 <h3>Rendered page</h3>
-Host: <?= $headers['Host']; ?>
+Host: <?= $headers['host']; ?>
 </body>
 </html>

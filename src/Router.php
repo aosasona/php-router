@@ -30,9 +30,11 @@ class Router
         $this->extract_params_from_request_path();
         $this->routes = [];
         $this->route_cache = null;
-        $this->content_type = $_SERVER['HTTP_CONTENT_TYPE'] ?? "text/html";
+        $this->content_type = isset($_SERVER['HTTP_CONTENT_TYPE']) ? @explode(";", $_SERVER['HTTP_CONTENT_TYPE'])[0] ?? null : null;
         $this->allowed_content_types = [
             "application/json",
+            "application/x-www-form-urlencoded",
+            "multipart/form-data",
             "text/html",
         ];
     }
@@ -210,7 +212,7 @@ class Router
      * @param $method
      * @return mixed|null
      */
-    public function get_route($_, $method)
+    protected function get_route($_, $method)
     {
         foreach ($this->routes as $route) {
             if ($route["method"] === $method && $this->compare_current_path($route["path"])) {
@@ -250,20 +252,19 @@ class Router
     {
         try {
 
-            // check if the content type is allowed
-            if (!in_array($this->content_type, $this->allowed_content_types) && $this->content_type !== "text/html") {
+            if ($this->content_type && !in_array($this->content_type, $this->allowed_content_types) && $this->method !== "GET") {
                 $this->send_error_page(405);
+                exit;
             }
-
 
             $route = $this->get_route($this->request_path, strtoupper($method));
 
             $params = count($route["params"] ?? []) > 0 ? $this->get_params_values($route) : [];
             $response = new Response($this->source_path);
-            $request = new Request([$_GET, $_POST], $params, $this->request_path);
+            $request = new Request([$_GET, $_POST], $params, $this->request_path, $this->source_path);
 
             if ($route !== null) {
-                if(count($route["middleware"]) > 0) {
+                if (count($route["middleware"]) > 0) {
                     $middleware = new Middleware($route["middleware"], $request, $response);
                     $middleware->handle();
                 }
@@ -355,12 +356,21 @@ class Router
     /**
      * @return void
      */
-    protected function strip_extra_url_data(): void
+    protected function strip_extra_url_data()
     {
-        $this->request_path = ltrim(rtrim($_SERVER['REQUEST_URI'] ?? "", "/"), "/");
+        $this->request_path = $_SERVER['REQUEST_URI'] ?? "";
+        $pos = strpos($this->request_path, "?");
 
-        if ($pos = strpos($this->request_path, "?")) {
-            $this->request_path = substr($this->request_path, 0, $pos);
+        if (substr($this->request_path, -1) === "#") {
+            $this->request_path = substr($this->request_path, 0, -1);
         }
+
+        if (!$pos || strlen($this->request_path) === 0) {
+            $this->request_path = ltrim(rtrim($this->request_path ?? "", "/"), "/");
+            return;
+        }
+
+        $sub = substr($this->request_path, 0, $pos);
+        $this->request_path = $sub;
     }
 }

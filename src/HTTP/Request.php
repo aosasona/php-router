@@ -10,14 +10,16 @@ class Request
     public string $request_path;
     private string $content_type;
     public ?array $data;
+    public $source_dir;
 
-    public function __construct($request_data, $params = [], $path = "")
+    public function __construct($request_data, $params = [], $path = "", $source_dir = "")
     {
-        $this->request_data = $request_data;
-        $this->request_params = $params;
-        $this->request_path = $path;
+        $this->request_data = $request_data ?? [];
+        $this->request_params = $params ?? [];
+        $this->request_path = $path ?? "";
         $this->content_type = $_SERVER['HTTP_CONTENT_TYPE'] ?? "text/html";
         $this->data = [];
+        $this->source_dir = $source_dir ?? "";
     }
 
     /**
@@ -31,6 +33,8 @@ class Request
         $get = array_map(function ($value) {
             return htmlspecialchars_decode($value);
         }, $get);
+
+        $get = $get ?? [];
 
         return array_key_exists($key, $get) ? $get[$key] : ($key !== null ? null : (count($get) > 0 ? $get : []));
     }
@@ -47,9 +51,17 @@ class Request
         } else {
             @[$get, $post] = $this->request_data;
             $post = array_map(function ($value) {
-                return htmlspecialchars($value);
+                return $value;
             }, $post);
             $body = $post;
+        }
+
+        $body = $body ?? [];
+        
+        if(count($body) > 0) {
+            array_map(function ($value) {
+                return htmlspecialchars(trim($value));
+            }, $body);
         }
 
         return array_key_exists($key, $body) ? $body[$key] : ($key !== null ? null : (count($body) > 0 ? $body : []));
@@ -76,7 +88,7 @@ class Request
 
     public function header($key = null)
     {
-        $headers = $this->headers();
+        $headers = $this->headers() ?? [];
         return array_key_exists($key, $headers) ? $headers[$key] : null;
     }
 
@@ -114,7 +126,15 @@ class Request
             "body" => $this->body(),
             "params" => $this->request_params,
             "headers" => $this->headers(),
-            "data" => $this->data
+            "data" => $this->data,
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function get_root_dir(): string
+    {
+        return $this->source_dir ?? "";
     }
 }
