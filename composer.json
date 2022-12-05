@@ -3,7 +3,6 @@
   "description": "A simple express-style router for PHP",
   "version": "2.0.5",
   "type": "library",
-  "minimum-stability": "dev",
   "keywords": [
     "router",
     "php",
