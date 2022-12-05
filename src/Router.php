@@ -19,9 +19,10 @@ class Router
     protected array $allowed_content_types;
     protected ?string $route_cache;
     private $content_type;
-
-    public function __construct($source_path, $base_path = "")
+    protected $prefix_route = '';
+    public function __construct($source_path, $base_path = "", string $prefix_route = '')
     {
+        $this->prefix_route = $prefix_route;
         $this->source_path = $source_path;
         $this->base_path = $base_path;
         $this->method = $_SERVER['REQUEST_METHOD'] ?? "GET";
@@ -118,7 +119,8 @@ class Router
      */
     private function add_route($data, string $method = "GET")
     {
-        $path = $this->route_cache !== null ? $this->route_cache : $data[0];
+        $path = $this->prefix_route;
+        $path .= $this->route_cache !== null ? $this->route_cache : $data[0];
 
         list($params, $path, $path_array, $dynamic) = $this->extract_route_details($path);
 
@@ -192,6 +194,15 @@ class Router
         $this->add_route($data, "PUT");
         return $this;
     }
+    /**
+     * Importing another route
+     * @param Router $router
+     * @return Router
+     */
+    public function use_route(Router $router): Router{
+        $this->routes = array_merge($router->routes, $this->routes);
+        return $this;
+    }
 
 
     /**
@@ -221,6 +232,7 @@ class Router
             $values = [];
             foreach ($params as $param) {
                 $current_index = array_search(":{$param}", $route["path_array"]);
+                $current_index = isset($this->request_params[$current_index]) ? $current_index : $current_index - 1;
                 $values[$param] = htmlspecialchars($this->request_params[$current_index]);
             }
             return $values;
